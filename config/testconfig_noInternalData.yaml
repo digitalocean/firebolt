@@ -1,0 +1,9 @@
+application: sampleapp
+metricsprefix: sample
+metricsport: 4321
+source:
+  name: kafkaconsumer
+nodes:
+  - name: firstnode
+    workers: 1
+    buffersize: 100

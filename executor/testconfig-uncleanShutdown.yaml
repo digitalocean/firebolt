@@ -1,0 +1,16 @@
+application: unit-test-pipeline
+metricsprefix: test
+source:
+  name: simplesource
+nodes:
+  - name: filternode
+    workers: 1
+    buffersize: 4
+    children:
+      - name: errornode
+        workers: 1
+        buffersize: 1
+        children:
+          - name: slownode
+            workers: 2
+            buffersize: 0

@@ -1,0 +1,28 @@
+application: MyPipeline
+metricsprefix: mypipeline
+metricsport: 9123
+
+source:
+  name: kafkaconsumer
+  params:
+    brokers: prod-obs-kafka01.nyc3.internal.digitalocean.com
+    consumergroup: somegroup
+    topic: inbound-topic
+
+nodes:
+  - name: transform
+    workers: 4
+    buffersize: 5000
+    error_handler:
+      name: errorkafkaproducer
+      buffersize: 10
+      params:
+        brokers: prod-obs-kafka01.nyc3.internal.digitalocean.com
+        topic: errors-topic
+    children:
+      - name: kafkaproducer
+        workers: 1
+        buffersize: 100
+        params:
+          brokers: prod-obs-kafka01.nyc3.internal.digitalocean.com
+          topic: result-topic

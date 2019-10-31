@@ -1,0 +1,19 @@
+application: unit-test-pipeline
+metricsprefix: test
+metricsport: 4321
+source:
+  name: simplesource
+nodes:
+  - name: filternode
+    workers: 2
+    buffersize: 4
+    children:
+      - name: errornode
+        workers: 1
+        buffersize: 1
+        error_handler:
+          name: errorhandlernode
+        children:
+          - name: resultsnode
+            workers: 2
+            buffersize: 0

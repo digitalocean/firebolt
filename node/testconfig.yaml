@@ -1,0 +1,39 @@
+application: elauneind
+metricprefix: elauneind
+source:
+  name: kafkaconsumer
+  params:
+    brokers: prod-obs-kafka-01.nyc3.internal.digitalocean.com,prod-obs-kafka-02.nyc3.internal.digitalocean.com,prod-obs-kafka-03.nyc3.internal.digitalocean.com
+    consumergroup: logprocessor
+    topic: logs-all
+    buffersize: 1000
+nodes:
+- name: syslogparser
+  id: syslog1
+  workers: 2
+  buffersize: 400
+  error_handler:
+    name: errorkafkaproducer
+    workers: 1
+  children:
+  - name: filternode
+    workers: 4
+    buffersize: 200
+    children:
+    - name: kafkaproducer
+      workers: 2
+      buffersize: 1
+      discard_on_full_buffer: true
+    - name: kafkaproducer
+      id: used-to-test-blocking-on-full-buffer
+      buffersize: 3
+    - name: kafkaproducer
+      id: disabled-kafka-producer
+      disabled: true
+      workers: 4
+      buffersize: 200
+  - name: asyncfilternode
+    buffersize: 100
+    children:
+      - name: kafkaproducer
+        buffersize: 1

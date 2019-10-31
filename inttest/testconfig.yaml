@@ -1,0 +1,63 @@
+application: unit-test-pipeline
+metricsprefix: test
+metricsport: 23456
+source:
+  name: kafkaconsumer
+  params:
+    brokers: localhost:9092
+    consumergroup: inttest
+    topic: firebolt-inttest
+    buffersize: 10
+    maxpartitionlag: 100000
+nodes:
+  - name: filternode
+    workers: 2
+    buffersize: 4
+    children:
+      - name: errornode
+        workers: 1
+        buffersize: 1
+        error_handler:
+            name: errorkafkaproducer
+            workers: 1
+            buffersize: 1
+            params:
+              brokers: localhost:9092
+              topic: firebolt-inttest-err
+        children:
+          - name: stringtobytesnode
+            children:
+              - name: kafkaproducer
+                workers: 2
+                buffersize: 5
+                params:
+                  brokers: localhost:9092
+                  topic: firebolt-inttest-out
+  - name: asyncfilternode
+    workers: 2
+    buffersize: 4
+    children:
+      - name: errornode
+        id: asyncerrornode
+        workers: 1
+        buffersize: 1
+        children:
+          - name: stringtobytesnode
+            id: asyncstringtobytesnode
+            children:
+              - name: kafkaproducer
+                id: asynckafkaproducer
+                workers: 2
+                buffersize: 5
+                params:
+                  brokers: localhost:9092
+                  topic: firebolt-inttest-out-async
+      - name: indexrequestbuildernode
+        workers: 1
+        buffersize: 1
+        children:
+          - name: elasticsearch
+            workers: 1
+            buffersize: 1
+            params:
+              elastic-addr: http://localhost:9200

@@ -1,0 +1,24 @@
+application: TestApp
+metricsprefix: test
+source:
+  name: kafkaconsumer
+  params:
+    brokers: kafkabroker:9092
+    consumergroup: testapp
+    topic: logs-all
+    buffersize: 1000
+nodes:
+  - name: firstnode
+    workers: 1
+    buffersize: 100
+    params:
+      param1.1: value1.1
+      param1.2: value1.2
+    children:
+      - name: firstnode
+        id: actually-second-node
+        workers: 2
+        buffersize: 200
+  - name: fourthnode
+    workers: 4
+    buffersize: 400

@@ -1,0 +1,43 @@
+application: unit-test-pipeline
+metricsprefix: test
+metricsport: 23456
+internaldata:
+  transport: kafka
+  params:
+    brokers: localhost:9092
+    messagetopic: elauneind-firebolt-messages
+source:
+  name: kafkaconsumer
+  params:
+    brokers: localhost:9092
+    consumergroup: inttest
+    topic: firebolt-inttest
+    buffersize: 10
+    maxpartitionlag: 100
+    parallelrecoveryenabled: true
+    parallelrecoverymaxrecords: 500
+    parallelrecoverymaxrate: 100
+nodes:
+  - name: filternode
+    workers: 2
+    buffersize: 4
+    children:
+      - name: errornode
+        workers: 1
+        buffersize: 1
+        error_handler:
+            name: errorkafkaproducer
+            workers: 1
+            buffersize: 1
+            params:
+              brokers: localhost:9092
+              topic: firebolt-inttest-err
+        children:
+          - name: stringtobytesnode
+            children:
+              - name: kafkaproducer
+                workers: 2
+                buffersize: 5
+                params:
+                  brokers: localhost:9092
+                  topic: firebolt-inttest-out

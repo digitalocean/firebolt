@@ -1,0 +1,13 @@
+application: sampleapp
+metricsprefix: sample
+metricsport: 4321
+internaldata:
+  transport: cassandra # not supported
+  params:
+    host: cassandra.local
+source:
+  name: kafkaconsumer
+nodes:
+  - name: firstnode
+    workers: 1
+    buffersize: 100
