@@ -1,4 +1,4 @@
-# firebolt ![Code Coverage Badge by Gopherbadger](coverage_badge.png)
+# firebolt ![Code Coverage Badge by Gopherbadger](coverage_badge.png)  [![Build Status](https://travis-ci.org/digitalocean/firebolt.svg?branch=master)](https://travis-ci.org/digitalocean/firebolt)
 A golang framework for streaming event processing & data pipeline apps
 
 ## Introduction
