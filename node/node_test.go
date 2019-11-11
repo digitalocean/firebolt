@@ -7,18 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/util"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.internal.digitalocean.com/observability/firebolt"
-	"github.internal.digitalocean.com/observability/firebolt/config"
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
-	"github.internal.digitalocean.com/observability/firebolt/node"
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaconsumer"
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaproducer"
-	"github.internal.digitalocean.com/observability/firebolt/node/syslogparser"
+	"github.com/digitalocean/firebolt"
+	"github.com/digitalocean/firebolt/config"
+	"github.com/digitalocean/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/metrics"
+	"github.com/digitalocean/firebolt/node"
+	"github.com/digitalocean/firebolt/node/kafkaconsumer"
+	"github.com/digitalocean/firebolt/node/kafkaproducer"
+	"github.com/digitalocean/firebolt/node/syslogparser"
 )
 
 func registerTestNodeTypes() {

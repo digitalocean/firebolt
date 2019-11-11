@@ -9,7 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/fbcontext"
 )
 
 // RecoveryTracker uses a Kafka compact topic to persist requests for partition data recovery.   It caches the most recent

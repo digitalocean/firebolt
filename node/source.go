@@ -1,8 +1,8 @@
 package node
 
 import (
-	"github.internal.digitalocean.com/observability/firebolt"
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt"
+	"github.com/digitalocean/firebolt/fbcontext"
 )
 
 // Source is a root node that generates messages to be processed or receives them from an external system.

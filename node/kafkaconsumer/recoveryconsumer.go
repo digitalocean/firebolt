@@ -7,15 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
-	kafkainterface "github.internal.digitalocean.com/observability/firebolt/kafka"
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/fbcontext"
+	kafkainterface "github.com/digitalocean/firebolt/kafka"
+	"github.com/digitalocean/firebolt/util"
 )
 
 const updateRecoveryRequestSeconds = 5

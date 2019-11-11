@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.internal.digitalocean.com/observability/firebolt"
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaconsumer"
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaproducer"
+	"github.com/digitalocean/firebolt"
+	"github.com/digitalocean/firebolt/node/kafkaconsumer"
+	"github.com/digitalocean/firebolt/node/kafkaproducer"
 )
 
 func registerNodeTypes() {

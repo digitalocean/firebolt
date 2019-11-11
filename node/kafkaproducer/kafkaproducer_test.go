@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/stretchr/testify/assert"

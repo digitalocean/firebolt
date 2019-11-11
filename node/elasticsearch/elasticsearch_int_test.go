@@ -9,9 +9,9 @@ import (
 
 	"github.com/olivere/elastic/v7"
 
-	"github.internal.digitalocean.com/observability/firebolt"
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt"
+	"github.com/digitalocean/firebolt/metrics"
+	"github.com/digitalocean/firebolt/util"
 
 	"github.com/stretchr/testify/assert"
 )

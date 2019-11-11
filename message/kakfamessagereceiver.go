@@ -8,9 +8,9 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/config"
-	kafkainterface "github.internal.digitalocean.com/observability/firebolt/kafka"
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/config"
+	kafkainterface "github.com/digitalocean/firebolt/kafka"
+	"github.com/digitalocean/firebolt/util"
 )
 
 // KafkaMessageReceiver consumes messages from the configured 'messagetopic'.

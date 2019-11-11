@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt/node/elasticsearch"
+	"github.com/digitalocean/firebolt/node/elasticsearch"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt"
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
-	"github.internal.digitalocean.com/observability/firebolt/node"
+	"github.com/digitalocean/firebolt"
+	"github.com/digitalocean/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/node"
 )
 
 var (

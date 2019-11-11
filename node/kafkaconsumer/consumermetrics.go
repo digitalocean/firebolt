@@ -9,7 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
+	"github.com/digitalocean/firebolt/metrics"
 )
 
 // Metrics encapsulates the prometheus collectors used to record metrics about the consumer

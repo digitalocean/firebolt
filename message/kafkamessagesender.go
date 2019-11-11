@@ -8,8 +8,8 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/config"
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaproducer"
+	"github.com/digitalocean/firebolt/config"
+	"github.com/digitalocean/firebolt/node/kafkaproducer"
 )
 
 // KafkaMessageSender is a message Sender for Kafka.
