@@ -1,4 +1,4 @@
-module github.internal.digitalocean.com/observability/firebolt
+module github.com/digitalocean/firebolt
 
 go 1.13
 
