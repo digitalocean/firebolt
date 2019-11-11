@@ -3,16 +3,11 @@ dist: bionic
 
 go:
   - 1.13.x
-  - tip
-
-matrix:
-  allow_failures:
-    - go: tip
 
 services:
   - docker
 
-script: make test
+script: make cover
 
 before_install:
   - sudo apt-get install -y curl wget software-properties-common apt-transport-https ca-certificates gnupg2
