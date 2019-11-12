@@ -7,15 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/util"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
+	"github.com/digitalocean/firebolt/metrics"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.internal.digitalocean.com/observability/firebolt/node/kafkaproducer"
+	"github.com/digitalocean/firebolt/node/kafkaproducer"
 )
 
 func TestKafkaConsumer(t *testing.T) {

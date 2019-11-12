@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/util"
 )
 
 // KafkaProducer is a firebolt node for producing messages onto a Kafka topic.

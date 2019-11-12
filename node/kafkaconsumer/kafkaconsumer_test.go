@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/stretchr/testify/assert"
 
-	kafkainterface "github.internal.digitalocean.com/observability/firebolt/kafka"
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
+	kafkainterface "github.com/digitalocean/firebolt/kafka"
+	"github.com/digitalocean/firebolt/metrics"
 )
 
 func createValidConfig() map[string]string {

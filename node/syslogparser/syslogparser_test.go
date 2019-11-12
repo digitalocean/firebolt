@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/digitalocean/captainslog"
 	"github.com/stretchr/testify/assert"

@@ -6,7 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 )
 
 // ErrorProducer is a firebolt node for producing EventError messages onto a Kafka topic.

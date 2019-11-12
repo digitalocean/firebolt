@@ -9,12 +9,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.internal.digitalocean.com/observability/firebolt/config"
-	"github.internal.digitalocean.com/observability/firebolt/executor"
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
-	"github.internal.digitalocean.com/observability/firebolt/internal"
-	"github.internal.digitalocean.com/observability/firebolt/message"
-	"github.internal.digitalocean.com/observability/firebolt/util"
+	"github.com/digitalocean/firebolt/config"
+	"github.com/digitalocean/firebolt/executor"
+	"github.com/digitalocean/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/internal"
+	"github.com/digitalocean/firebolt/message"
+	"github.com/digitalocean/firebolt/util"
 )
 
 func sendMessageViaNode(ex *executor.Executor, messageType string, key string, payload string) {

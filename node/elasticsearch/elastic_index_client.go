@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/olivere/elastic/v7"
 	log "github.com/sirupsen/logrus"

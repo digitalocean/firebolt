@@ -3,7 +3,7 @@ package metrics_test
 import (
 	"testing"
 
-	"github.internal.digitalocean.com/observability/firebolt/metrics"
+	"github.com/digitalocean/firebolt/metrics"
 
 	"github.com/stretchr/testify/assert"
 )

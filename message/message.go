@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/config"
+	"github.com/digitalocean/firebolt/config"
 )
 
 // Message is a single message to be delivered to a source or node

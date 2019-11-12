@@ -3,12 +3,12 @@ package syslogparser
 import (
 	"errors"
 
-	"github.internal.digitalocean.com/observability/firebolt"
+	"github.com/digitalocean/firebolt"
 
 	"github.com/digitalocean/captainslog"
 	log "github.com/sirupsen/logrus"
 
-	"github.internal.digitalocean.com/observability/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/fbcontext"
 )
 
 // SyslogParser is a firebolt node for parsing syslog messages from bytes using Captainslog.
