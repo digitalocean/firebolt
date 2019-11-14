@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Nodeconfig holds a Nodes configuration
 type Nodeconfig map[string]string
 
 // IntConfig validates and fetches the int-typed optional config value specified by 'name', using the 'defaultValue' if

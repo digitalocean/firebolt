@@ -6,9 +6,9 @@ import (
 
 // wireMessage is the structure that we send on the Kafka topic
 type wireMessage struct {
-	Message     Message   `json:"message"`
-	Updated     time.Time `json:"updated"`
-	Acknowleged bool      `json:"ack"`
+	Message      Message   `json:"message"`
+	Updated      time.Time `json:"updated"`
+	Acknowledged bool      `json:"ack"`
 }
 
 // uniqueKey concatenates messagetype with the key so that we don't risk collisions across message producers

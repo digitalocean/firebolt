@@ -388,7 +388,7 @@ func (a *AsyncFilterNode) Receive(msg fbcontext.Message) error {
 	return errors.New("message not supported")
 }
 
-// IndexRequestBuildlerNode is a Node that converts strings to elasticsearch IndexRequests
+// IndexRequestBuilderNode is a Node that converts strings to elasticsearch IndexRequests
 type IndexRequestBuilderNode struct {
 	docNum int
 	fbcontext.ContextAware
