@@ -19,7 +19,7 @@ clean:
 format:
 	@go fmt
 	@go get golang.org/x/tools/cmd/goimports
-	@goimports -w $$(find . -name '*.go' | grep -v vendor)
+	@goimports -w $$(find . -name '*.go' | grep -v 'mock_*')
 
 lint: .makecache .makecache/lint
 
