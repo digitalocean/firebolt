@@ -199,7 +199,7 @@ func (r *KafkaMessageReceiver) processMessage(value []byte) {
 	if !r.initialized {
 		r.initBuffer[uniqueKey(wireMsg.Message)] = wireMsg
 	} else {
-		if !wireMsg.Acknowleged {
+		if !wireMsg.Acknowledged {
 			r.deliverMessage(wireMsg.Message)
 		}
 	}
@@ -217,7 +217,7 @@ func (r *KafkaMessageReceiver) deliverMessage(msg Message) {
 func (r *KafkaMessageReceiver) processInitBuffer() {
 	log.WithField("buffered_messages", len(r.initBuffer)).Info("kafkamessagereceiver: delivering buffered messages")
 	for _, wireMsg := range r.initBuffer {
-		if !wireMsg.Acknowleged {
+		if !wireMsg.Acknowledged {
 			msg := wireMsg.Message
 			log.WithField("message_key", msg.Key).WithField("message_type", msg.MessageType).Infof("kafkamessagereceiver: delivering initial message")
 			r.deliverMessage(msg)
