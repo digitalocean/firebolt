@@ -68,11 +68,7 @@ type errorList struct {
 }
 
 func (el *errorList) addError(err error) {
-	if el.errors == nil {
-		el.errors = []error{err}
-	} else {
-		el.errors = append(el.errors, err)
-	}
+	el.errors = append(el.errors, err)
 }
 
 // deliverMessage recursively visits the source and all nodes and delivers the message if the node accepts this message type.
