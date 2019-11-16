@@ -89,9 +89,6 @@ func (c *ContextAware) Subscribe(messageTypes []string) {
 // AcceptsMessage is used when delivering messages to determine if a Source/Node requests delivery of messages with a given
 // messageType.
 func (c *ContextAware) AcceptsMessage(messageType string) bool {
-	if c.messageTypes == nil {
-		return false
-	}
 	for _, t := range c.messageTypes {
 		if messageType == t {
 			return true

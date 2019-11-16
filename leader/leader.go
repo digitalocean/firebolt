@@ -117,7 +117,7 @@ func (l *Leader) updateLeadership(status leaderelection.Status) {
 }
 
 // connectZk establishes a Zookeeper client connection.  The underlying client library does not block on creating the initial
-// conection, so no error will be returned from zk.Connect if zookeeper is not available.
+// connection, so no error will be returned from zk.Connect if zookeeper is not available.
 func connectZk(zkHosts string) (*zk.Conn, <-chan zk.Event) {
 	zks := strings.Split(zkHosts, ",")
 

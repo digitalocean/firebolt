@@ -53,9 +53,9 @@ func (s KafkaMessageSender) Ack(msg Message) error {
 
 func (s *KafkaMessageSender) produceMessage(msg Message, ack bool) error {
 	wireMsg := &wireMessage{
-		Message:     msg,
-		Updated:     time.Now(),
-		Acknowleged: ack,
+		Message:      msg,
+		Updated:      time.Now(),
+		Acknowledged: ack,
 	}
 
 	wireMsgBytes, err := json.Marshal(wireMsg)
