@@ -25,6 +25,8 @@ We provide two built-in node types:
  * **kafkaproducer** - Events are produced onto a kafka topic by an asynchronous producer.
  * **elasticsearch** - Events are bulk indexed into Elasticsearch.
 
+Firebolt has both run and compile-time dependencies on `librdkafka`, see [Developing](#developing)
+
 ## Example: Logging Pipeline
 At DigitalOcean, our first use of Firebolt was in our logging pipeline. This pipeline consumes logs from just about
 every system we run.   The diagram below depicts the source and nodes in this application.
@@ -83,3 +85,17 @@ Some of the concerns Firebolt addresses include:
 1. [Kafka Producer ](docs/node-kafkaproducer.md) Node for producing events onto a Kafka topic
 
 1. [Elasticsearch ](docs/node-elasticsearch.md) Node for indexing documents to an Elasticsearch cluster
+
+## Developing
+
+Firebolt depends on [librdkafka](https://github.com/edenhill/librdkafka) v1.1.0 or later.   To get started building a 
+firebolt app (or working on firebolt itself), install it following the 
+[instructions here](https://github.com/edenhill/librdkafka#installation).
+
+ An example for debian-based distros:
+ ```
+sudo wget -qO - https://packages.confluent.io/deb/5.3/archive.key | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.3 stable main"
+sudo apt-get update
+sudo apt-get install -y librdkafka1 librdkafka-dev
+```
