@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"reflect"
-	"time"
 
 	"github.com/digitalocean/firebolt/util"
 
@@ -22,7 +21,6 @@ import (
 func main() {
 	exampleName := os.Args[1]
 	util.WaitForPort(nil, 9092)
-	time.Sleep(20 * time.Second)
 
 	// run the selected example
 	if exampleName == "kafkatokafka" {
@@ -33,7 +31,7 @@ func main() {
 
 	// produce test data, consume any results
 	shared.ProduceTestData(10)
-	shared.ConsumeTestData(10)
+	shared.ConsumeTestData("ktk-dest", 10)
 }
 
 func runKafkaToKafka() {
