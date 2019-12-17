@@ -19,18 +19,21 @@ type jsonLog struct {
 
 var _ node.SyncNode = &JSONBuilder{}
 
-// JSONBuilder is a firebolt `node.SyncNode` for building JSON extracts from syslog messages.
+// JSONBuilder is a firebolt `node.SyncNode` for building JSON extracts from syslog messages.  Because this is a
+// `node.SyncNode`, its 'Process()' method must return immediately. A `node.AsyncNode` interface is also available
+// for async operations such as bulk db writes.
 type JSONBuilder struct {
 	fbcontext.ContextAware
 }
 
-// Setup is a no-op in jsonbuilder
+// Setup is a no-op in jsonbuilder.   This is where you'd do any one-time setup, like establishing a db connection or
+// populating a cache.
 func (j *JSONBuilder) Setup(config map[string]string) error {
 	return nil
 }
 
 // Process takes the inbound `msg`, a captainslog.SyslogMsg, and builds a JSON string from it, returning that string as
-// a []byte
+// a []byte.
 func (j *JSONBuilder) Process(event *firebolt.Event) (*firebolt.Event, error) {
 
 	// start with a type assertion because :sad-no-generics:
@@ -54,12 +57,12 @@ func (j *JSONBuilder) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	return event.WithPayload(jsonBytes), nil
 }
 
-// Shutdown is a no-op in jsonbuilder
+// Shutdown is a no-op in jsonbuilder.   This is where you'd clean up any resources on application shutdown.
 func (j *JSONBuilder) Shutdown() error {
 	return nil
 }
 
-// Receive handles a message from another node or an external source
+// Receive handles a message from another node or an external source.   This example doesn't use messaging.
 func (j *JSONBuilder) Receive(msg fbcontext.Message) error {
 	return errors.New("parser: messaging not supported")
 }
