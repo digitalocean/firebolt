@@ -4,18 +4,13 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/digitalocean/firebolt/util"
-
+	"github.com/digitalocean/captainslog"
+	"github.com/digitalocean/firebolt/examples/kafkatokafka"
 	"github.com/digitalocean/firebolt/examples/shared"
-
 	"github.com/digitalocean/firebolt/executor"
 	"github.com/digitalocean/firebolt/metrics"
-
-	"github.com/digitalocean/firebolt/examples/kafkatokafka"
-
-	"github.com/digitalocean/captainslog"
-
 	"github.com/digitalocean/firebolt/node"
+	"github.com/digitalocean/firebolt/util"
 )
 
 func main() {
@@ -37,6 +32,14 @@ func main() {
 func runKafkaToKafka() {
 	metrics.Init("kafkatokafka")
 
+	// looking at the config file 'firebolt.yaml' for this example, there are four nodes in a chain:
+	//   kafkaconsumer -> parser -> jsonbuilder -> kafkaproducer
+	// the first and last are built-in to firebolt, but parser and jsonbuilder are custom nodes
+	//
+	// for each custom node type, we need to register a factory method with firebolt, using the same
+	// name as in 'firebolt.yaml':
+	//
+
 	// register the parser node
 	node.GetRegistry().RegisterNodeType("parser", func() node.Node {
 		return &kafkatokafka.Parser{}
@@ -47,7 +50,7 @@ func runKafkaToKafka() {
 		return &kafkatokafka.JSONBuilder{}
 	}, reflect.TypeOf(captainslog.SyslogMsg{}), reflect.TypeOf([]byte(nil)))
 
-	// start the firebolt executor
+	// read the config file and start the firebolt executor
 	ex, err := executor.New(executor.WithConfigFile("kafkatokafka/firebolt.yaml"))
 	if err != nil {
 		os.Exit(1)

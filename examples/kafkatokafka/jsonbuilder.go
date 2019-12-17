@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/digitalocean/firebolt/node"
+
 	"github.com/digitalocean/captainslog"
 	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/fbcontext"
@@ -15,7 +17,9 @@ type jsonLog struct {
 	Msg     string `json:"message"`
 }
 
-// JSONBuilder is a firebolt node for building JSON extracts from syslog messages.
+var _ node.SyncNode = &JSONBuilder{}
+
+// JSONBuilder is a firebolt `node.SyncNode` for building JSON extracts from syslog messages.
 type JSONBuilder struct {
 	fbcontext.ContextAware
 }

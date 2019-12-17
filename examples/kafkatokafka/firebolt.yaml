@@ -14,12 +14,6 @@ nodes:
   - name: parser
     workers: 1
     buffersize: 100
-    error_handler:
-      name: errorkafkaproducer
-      buffersize: 10
-      params:
-        brokers: localhost
-        topic: ktk-errors
     children:
       - name: jsonbuilder
         workers: 1

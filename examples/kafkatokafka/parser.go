@@ -6,10 +6,14 @@ import (
 	"github.com/digitalocean/captainslog"
 	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/fbcontext"
+	"github.com/digitalocean/firebolt/node"
+
 	log "github.com/sirupsen/logrus"
 )
 
-// Parser is a firebolt node for parsing syslog messages from bytes using `digitalocean/captainslog`.
+var _ node.SyncNode = &Parser{}
+
+// Parser is a firebolt `node.SyncNode` for parsing syslog messages from bytes using `digitalocean/captainslog`.
 type Parser struct {
 	fbcontext.ContextAware
 }
@@ -19,7 +23,7 @@ func (p *Parser) Setup(config map[string]string) error {
 	return nil
 }
 
-// Process takes the inbound `msg`, which is a byte array, and parses a captainslog.SyslogMsg from it
+// Process takes the inbound `msg`, which is a byte array, and parses a `captainslog.SyslogMsg` from it
 func (p *Parser) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	// start with a type assertion because :sad-no-generics:
 	msgBytes, ok := event.Payload.([]byte)
