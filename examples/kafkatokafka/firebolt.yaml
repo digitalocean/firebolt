@@ -1,0 +1,25 @@
+application: KafkaToKafka
+metricsprefix: kafkatokafka
+metricsport: 9876
+
+source:
+  name: kafkaconsumer
+  params:
+    brokers: localhost
+    consumergroup: ktk-group
+    topic: ktk-source
+    buffersize: 100
+
+nodes:
+  - name: parser
+    workers: 1
+    buffersize: 100
+    children:
+      - name: jsonbuilder
+        workers: 1
+        buffersize: 100
+        children:
+          - name: kafkaproducer
+            params:
+              brokers: localhost
+              topic: ktk-dest

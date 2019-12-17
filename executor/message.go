@@ -20,7 +20,7 @@ func (e *Executor) InitMessaging(c config.Config) error {
 		return e.initMessagingKafka(c)
 	}
 
-	log.Warn("executor: valid internaldata transport not found, messaging will not be available")
+	log.Warn("executor: internaldata transport not configured, messaging will not be available; for applications that don't use messaging this is ok")
 	e.messageReceiver = &NoOpMessageReceiver{}
 
 	return nil
