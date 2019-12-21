@@ -78,7 +78,8 @@ func runLogging() {
 	// the first and last are built-in to firebolt, but parser and docbuilder are custom nodes
 	//
 	// there is also an 'error_handler' attached to the 'elasticsearch' node - any indexing errors will be passed to
-	// this 'errorkafkaproducer' (a built-in node type) and produced to a kafka topic
+	// this 'errorkafkaproducer' (a built-in node type) and produced to a kafka topic, and this example forces 20
+	// elastisearch mapping errors to occur to demonstrate this feature
 	//
 	// for each custom node type, we need to register a factory method with firebolt, using the same
 	// name as in 'firebolt.yaml':
