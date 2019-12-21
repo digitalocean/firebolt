@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/digitalocean/firebolt/config"
@@ -14,7 +16,6 @@ import (
 	"github.com/digitalocean/firebolt/fbcontext"
 	"github.com/digitalocean/firebolt/internal"
 	"github.com/digitalocean/firebolt/message"
-	"github.com/digitalocean/firebolt/util"
 )
 
 func sendMessageViaNode(ex *executor.Executor, messageType string, key string, payload string) {
@@ -103,7 +104,7 @@ func TestKafkaMessageTransport(t *testing.T) {
 
 	// executor.New will not return until the messaging framework has initialized and consumed all preexisting messages
 	// so we can make some assertions right away
-	err = util.AwaitCondition(func() bool {
+	err = testutil.AwaitCondition(func() bool {
 		return len(internal.FilterNodeMessages) == 3
 	}, 250*time.Millisecond, 30*time.Second)
 	if err != nil {

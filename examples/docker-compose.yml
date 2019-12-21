@@ -6,7 +6,7 @@ services:
     ports:
       - "2181:2181"
   kafka:
-    image: wurstmeister/kafka:2.12-2.3.0
+    image: wurstmeister/kafka:2.12-2.4.0
     ports:
       - "9092:9092"
     environment:
@@ -16,3 +16,11 @@ services:
       KAFKA_CREATE_TOPICS: "ktk-source:1:1,ktk-dest:1:1,ktk-errors:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m -Djava.net.preferIPv4Stack=true"
+    ports:
+      - "9200:9200"

@@ -1,0 +1,39 @@
+application: Logging
+metricsprefix: logging
+metricsport: 9877
+
+source:
+  # 'kafkaconsumer' reads raw syslog messages from a kafka topic
+  name: kafkaconsumer
+  params:
+    brokers: localhost
+    consumergroup: logging
+    topic: logs-raw
+    buffersize: 100
+
+nodes:
+  # 'parser' parses a syslog message from a byte array
+  - name: parser
+    workers: 1
+    buffersize: 100
+    children:
+      # 'docbuilder' prepares the IndexRequests required by the 'elasticsearch' node
+      - name: docbuilder
+        workers: 1
+        buffersize: 100
+        children:
+          # 'elasticsearch' performs bulk-indexing operations against the ES cluster
+          - name: elasticsearch
+            workers: 2
+            buffersize: 100
+            params:
+              elastic-addr: http://localhost:9200
+              batch-size: 10
+              index-workers: 1
+            error_handler:
+              # 'errorkafkaproducer' is a built-in node type that writes a JSON error report containing the event and error to a Kafka topic
+              name: errorkafkaproducer
+              buffersize: 100
+              params:
+                brokers: localhost
+                topic: logs-errors

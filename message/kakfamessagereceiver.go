@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
@@ -102,7 +104,7 @@ func (r *KafkaMessageReceiver) handleEvents() {
 	// in tests where we use autocreated topics, it takes some time for the broker to assign leaders, so we need to retry
 	// in a loop here
 	var messageTopicPartitions []kafka.PartitionMetadata
-	err := util.AwaitCondition(func() bool {
+	err := testutil.AwaitCondition(func() bool {
 		metadata, err := r.consumer.GetMetadata(&r.topic, false, 30000)
 		if err != nil {
 			log.WithError(err).Error("kafkamessagereceiver: failed to read message topic metadata, retrying")

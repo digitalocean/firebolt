@@ -64,5 +64,5 @@ func (j *JSONBuilder) Shutdown() error {
 
 // Receive handles a message from another node or an external source.   This example doesn't use messaging.
 func (j *JSONBuilder) Receive(msg fbcontext.Message) error {
-	return errors.New("parser: messaging not supported")
+	return errors.New("jsonbuilder: messaging not supported")
 }
