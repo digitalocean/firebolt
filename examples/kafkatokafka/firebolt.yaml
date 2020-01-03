@@ -3,6 +3,7 @@ metricsprefix: kafkatokafka
 metricsport: 9876
 
 source:
+  # 'kafkaconsumer' reads raw syslog messages from a kafka topic
   name: kafkaconsumer
   params:
     brokers: localhost
@@ -11,14 +12,17 @@ source:
     buffersize: 100
 
 nodes:
+  # 'parser' parses a syslog message from a byte array
   - name: parser
     workers: 1
     buffersize: 100
     children:
+      # 'jsonbuilder' extracts some syslog fields into a struct and returns a JSON document
       - name: jsonbuilder
         workers: 1
         buffersize: 100
         children:
+          # 'kafkaproducer' produces the JSON docs onto a kafka topic
           - name: kafkaproducer
             params:
               brokers: localhost

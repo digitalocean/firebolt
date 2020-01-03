@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/node/kafkaconsumer"
 )
 
-var sourceTopic = "ktk-source"
-var destTopic = "ktk-dest"
-
 // ProduceTestData generates syslog entries onto the test topic.
-func ProduceTestData(count int) {
+func ProduceTestData(topic string, count int) {
 	p, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": "localhost",
 	})
@@ -45,9 +44,10 @@ func ProduceTestData(count int) {
 	}()
 
 	for i := 0; i < count; i++ {
-		log := fmt.Sprintf("<191>2021-01-02T15:04:05.999999-07:00 host.example.org test: @cee:{\"msg\":\"log %d\"}", i)
+		log := fmt.Sprintf("<191>2021-01-02T15:04:05.999999-07:00 host.example.org test[%d]: @cee:{\"msg\":\"log %d\", \"user\":%d}", i, i, i)
+
 		kafkaMsg := &kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &sourceTopic, Partition: kafka.PartitionAny},
+			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          []byte(log),
 		}
 		p.ProduceChannel() <- kafkaMsg
@@ -56,6 +56,7 @@ func ProduceTestData(count int) {
 	_ = <-doneChan
 }
 
+// ConsumeTestData consumes data from the passed topic, stopping when it reaches the expected number of records or times out.
 func ConsumeTestData(topic string, expected int) {
 	ch := make(chan firebolt.Event, 1000)
 	config := make(map[string]string)
@@ -74,14 +75,29 @@ func ConsumeTestData(topic string, expected int) {
 			fmt.Println("got result: " + string(result.Payload.([]byte)))
 			count++
 			if count >= expected {
-				fmt.Printf("***\n***SUCCESS: received %d results\n***\n", count)
+				fmt.Printf("***\n*** SUCCESS: received %d results\n***\n", count)
 				go consumer.Shutdown()
 				return
 			}
 		case <-time.After(60 * time.Second):
-			fmt.Print("***\n***FAILED: timeout consuming results after 60s\n***\n")
+			fmt.Print("***\n*** FAILED: timeout consuming results after 60s\n***\n")
 			go consumer.Shutdown()
 			return
 		}
+	}
+}
+
+// CheckElasticsearchDocuments fetches all documents from the passed index and checks for the expected number of matches.
+func CheckElasticsearchDocuments(indexName string, expected int) {
+	hits, err := testutil.QueryAllElasticsearchDocuments(indexName)
+	if err != nil {
+		fmt.Printf("***\n*** FAILED: query ES failed due to: %v\n***\n", err)
+		return
+	}
+
+	if hits.TotalHits.Value == int64(expected) {
+		fmt.Printf("***\n*** SUCCESS: found %d elasticsearch documents\n***\n", expected)
+	} else {
+		fmt.Printf("***\n*** FAILED: found %d elasticsearch documents, expected %d\n***\n", hits.TotalHits.Value, expected)
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/digitalocean/firebolt"
 
 	"github.com/digitalocean/firebolt/config"
@@ -20,7 +22,6 @@ import (
 	"github.com/digitalocean/firebolt/fbcontext"
 	"github.com/digitalocean/firebolt/metrics"
 	"github.com/digitalocean/firebolt/node/kafkaproducer"
-	"github.com/digitalocean/firebolt/util"
 )
 
 // kafkaconsumer should sync its partition assignments to the recoveryconsumer (if enabled)
@@ -120,13 +121,13 @@ func TestRecoveryConsumerEndToEnd(t *testing.T) {
 	assert.Len(t, kc.sendCh, 0)
 
 	// we expect recoveryTracker to get recoveryrequests for all 4 partitions
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return kc.recoveryConsumer.tracker.RecoveryRequestCount() == 4
 	}, 250*time.Millisecond, 20*time.Second)
 	assert.Len(t, kc.recoveryConsumer.tracker.recoveryRequests, 4)
 
 	// give the recoveryconsumer some time to do its thing
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return len(kc.sendCh) == 1040
 	}, 1*time.Second, 60*time.Second)
 	assert.Len(t, kc.sendCh, 1040) // (60 * 4) from kafkaconsumer + (200 * 4) from recoveryconsumer
@@ -153,13 +154,13 @@ func TestRecoveryConsumerRateLimited(t *testing.T) {
 	assert.Len(t, kc.sendCh, 0)
 
 	// we expect recoveryTracker to get recoveryrequests for all 4 partitions
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return kc.recoveryConsumer.tracker.RecoveryRequestCount() == 4
 	}, 250*time.Millisecond, 20*time.Second)
 	assert.Len(t, kc.recoveryConsumer.tracker.recoveryRequests, 4)
 
 	// give the recoveryconsumer some time to do its thing
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return len(kc.sendCh) == 560
 	}, 1*time.Second, 40*time.Second)
 	assert.Len(t, kc.sendCh, 560) // (60 * 4) from kafkaconsumer + (80 * 4) from recoveryconsumer
@@ -191,14 +192,14 @@ func TestRecoveryConsumerRestart(t *testing.T) {
 	assert.Len(t, kc.sendCh, 0)
 
 	// we expect recoveryTracker to get recoveryrequests for all 4 partitions
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return kc.recoveryConsumer.tracker.RecoveryRequestCount() == 4
 	}, 250*time.Millisecond, 20*time.Second)
 	assert.Len(t, kc.recoveryConsumer.tracker.recoveryRequests, 4)
 
 	// stop mid-recovery; any number of records (beyond the 240 that kafkaconsumer will get on its own) is good
 	println("waiting for recovery to start, then shutting it down")
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return len(kc.sendCh) > 240
 	}, 250*time.Millisecond, 20*time.Second)
 	_ = kc.Shutdown()
@@ -210,14 +211,14 @@ func TestRecoveryConsumerRestart(t *testing.T) {
 	assert.Nil(t, err)
 
 	// again, we expect recoveryTracker to resume recoveryrequests for all 4 partitions
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return kc2.recoveryConsumer.tracker.RecoveryRequestCount() == 4
 	}, 250*time.Millisecond, 20*time.Second)
 	assert.Len(t, kc2.recoveryConsumer.tracker.recoveryRequests, 4)
 
 	fmt.Printf("previously recovered %d newly recovered %d\n", previouslyRecovered, len(kc2.sendCh))
 	// give the recoveryconsumer some time to do its thing
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return (previouslyRecovered + len(kc2.sendCh)) >= 8240
 	}, 1*time.Second, 60*time.Second)
 	assert.True(t, 8240 <= previouslyRecovered+len(kc2.sendCh), "expected the number of records recovered to be > 8240 but it was %d", previouslyRecovered+len(kc2.sendCh)) // (60 * 4) from kafkaconsumer + (2000 * 4) from recoveryconsumer
@@ -249,14 +250,14 @@ func TestRecoveryCancellation(t *testing.T) {
 	assert.Len(t, kc.sendCh, 0)
 
 	// we expect recoveryTracker to get recoveryrequests for all 4 partitions
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return kc.recoveryConsumer.tracker.RecoveryRequestCount() == 4
 	}, 250*time.Millisecond, 20*time.Second)
 	assert.Len(t, kc.recoveryConsumer.tracker.recoveryRequests, 4)
 
 	// wait for the same amount of time as in the test above
 	println("waiting for recovery to start before sending cancellation message")
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		return len(kc.sendCh) > 240
 	}, 250*time.Millisecond, 20*time.Second)
 
@@ -269,7 +270,7 @@ func TestRecoveryCancellation(t *testing.T) {
 	// wait for the number of messages to stop increasing over 3 seconds
 	numRecovered := len(kc.sendCh)
 	time.Sleep(3 * time.Second)
-	_ = util.AwaitCondition(func() bool {
+	_ = testutil.AwaitCondition(func() bool {
 		fmt.Printf("waiting for recovery to stop, was %d now %d\n", numRecovered, len(kc.sendCh))
 		if numRecovered == len(kc.sendCh) {
 			return true

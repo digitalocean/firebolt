@@ -1,4 +1,4 @@
-package util
+package testutil
 
 import (
 	"fmt"
@@ -6,11 +6,13 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/digitalocean/firebolt/util"
 )
 
 // AwaitCondition runs the passed 'cond' function every period until it returns true, returning an error if maxWait is
 // exceeded.
-func AwaitCondition(cond Condition, period time.Duration, maxWait time.Duration) error {
+func AwaitCondition(cond util.Condition, period time.Duration, maxWait time.Duration) error {
 	started := time.Now()
 	for !cond() {
 		if time.Now().Sub(started) >= maxWait {

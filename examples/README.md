@@ -16,9 +16,19 @@ see `examples/kafkatokafka`
 In this example, syslog log lines are read from a kafka topic, a few fields are parsed and formatted as JSON, and the
 result is written to a second kafka topic.
 
+This uses one source and three nodes:
+
+**kafkaconsumer** (built-in source)  -> **parser** (custom node) -> **jsonbuilder** (custom node) -> **kafkaproducer** (built-in node)
+
+## Logging
+see `examples/logging`
+
+This example is a simple logging pipeline.   Logs lines in syslog format are read from a kafka topic 'logs-raw', and 
+bulk indexed to Elasticsearch.  
+
 This uses one source and two nodes:
 
-**kafkaconsumer** (built-in source)  -> **jsonbuilder** (custom node) -> **kafkaproducer** (built-in node)
+**kafkaconsumer** (built-in source) -> **parser** (custom node) -> **docbuilder** (custom node) -> **elasticsearch** (built-in node)
 
-If any errors occur during parsing, those records and the associated error are sent to a dead letter queue via the
+If any errors occur during parsing, those records and the associated error are sent to the kafka topic 'logs-errors' via the
 **errorkafkaproducer** built-in node.

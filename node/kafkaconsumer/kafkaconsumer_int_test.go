@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/digitalocean/firebolt/util"
+	"github.com/digitalocean/firebolt/testutil"
 
 	"github.com/digitalocean/firebolt"
 
@@ -58,7 +58,7 @@ func TestKafkaConsumer(t *testing.T) {
 	go kc.Start()
 
 	// the maxpartitionlag should take effect, and we get 240 records (4 partitions * 60) instead of all 1000
-	err = util.AwaitCondition(func() bool {
+	err = testutil.AwaitCondition(func() bool {
 		return len(recordsCh) == 240
 	}, 500*time.Millisecond, 30*time.Second)
 	if err != nil {

@@ -1,6 +1,4 @@
-// +build integration
-
-package elasticsearch
+package testutil
 
 import (
 	"context"
@@ -9,7 +7,7 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-func CreateIndex(indexName string) error {
+func CreateElasticsearchIndex(indexName string) error {
 	client, err := elastic.NewSimpleClient(elastic.SetURL("http://localhost:9200"))
 	if err != nil {
 		return err
@@ -40,8 +38,8 @@ func CreateIndex(indexName string) error {
 	return nil
 }
 
-// searchAllDocuments is a test utility for fetching all documents in the specified elasticsearch index.
-func SearchAllDocuments(indexName string) (*elastic.SearchHits, error) {
+// QueryAllElasticsearchDocuments is a test utility for fetching all documents in the specified elasticsearch index.
+func QueryAllElasticsearchDocuments(indexName string) (*elastic.SearchHits, error) {
 	client, err := elastic.NewSimpleClient(elastic.SetURL("http://localhost:9200"))
 	if err != nil {
 		return nil, err

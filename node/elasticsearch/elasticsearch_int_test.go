@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/olivere/elastic/v7"
 
 	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/metrics"
-	"github.com/digitalocean/firebolt/util"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,8 +28,8 @@ func TestElasticsearchNode(t *testing.T) {
 	metrics.Init("elasticsearch")
 
 	// create an index
-	util.WaitForPort(t, 9200)     // wait for ES to be up
-	err := CreateIndex(indexName) // create the ES target index
+	testutil.WaitForPort(t, 9200)                       // wait for ES to be up
+	err := testutil.CreateElasticsearchIndex(indexName) // create the ES target index
 	assert.NoError(t, err)
 
 	// setup the elasticsearch node
@@ -52,7 +52,7 @@ func TestElasticsearchNode(t *testing.T) {
 	// pause so that the docs above get committed to the index and the mapping types are established
 	time.Sleep(1 * time.Second)
 
-	// then test some failures, these try 'user' field as 'text' and they should fail with mapping type exceptions
+	// then test some failures, these try 'user' field as 'object' and they should fail with mapping type exceptions
 	for i := 0; i < 50; i++ {
 		event := createIndexRequestEvent(&payloadUserObject{
 			Msg: "errorsandstuff",
@@ -80,7 +80,7 @@ func TestElasticsearchNode(t *testing.T) {
 	assert.Equal(t, "mapper_parsing_exception", errorDetails.Type)
 
 	// query to check results
-	hits, err := SearchAllDocuments(indexName)
+	hits, err := testutil.QueryAllElasticsearchDocuments(indexName)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(150), hits.TotalHits.Value)
 	hit := hits.Hits[0]

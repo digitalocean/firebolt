@@ -8,10 +8,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalocean/firebolt/testutil"
+
 	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/executor"
 	"github.com/digitalocean/firebolt/internal"
-	"github.com/digitalocean/firebolt/node/elasticsearch"
 	"github.com/digitalocean/firebolt/node/kafkaconsumer"
 	"github.com/digitalocean/firebolt/node/kafkaproducer"
 	"github.com/digitalocean/firebolt/util"
@@ -29,8 +30,8 @@ func TestEndToEnd(t *testing.T) {
 	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
 	assert.Nil(t, err)
 
-	util.WaitForPort(t, 9200)                  // wait for infra (kafka, elasticsearch) to be available - we wait for es since it takes longer to startup
-	err = elasticsearch.CreateIndex("inttest") // create the ES target index
+	testutil.WaitForPort(t, 9200)                      // wait for infra (kafka, elasticsearch) to be available - we wait for es since it takes longer to startup
+	err = testutil.CreateElasticsearchIndex("inttest") // create the ES target index
 	assert.NoError(t, err)
 	go ex.Execute()
 	produceTestData(recordCount)
@@ -104,13 +105,13 @@ func TestEndToEnd(t *testing.T) {
 	assert.Equal(t, 6, len(internal.AsyncFilteredEvents))
 
 	// elasticsearch
-	hits, err := elasticsearch.SearchAllDocuments("inttest")
+	hits, err := testutil.QueryAllElasticsearchDocuments("inttest")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(94), hits.TotalHits.Value) // all 94 events that were not filtered should be indexed
 }
 
 func waitForEvents(t *testing.T, expected int, ch chan firebolt.Event) error {
-	err := util.AwaitCondition(func() bool {
+	err := testutil.AwaitCondition(func() bool {
 		return len(ch) >= expected
 	}, 250*time.Millisecond, 60*time.Second)
 	fmt.Printf("failed, only consumed %d messages\n", len(ch))

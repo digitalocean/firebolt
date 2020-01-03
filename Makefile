@@ -61,6 +61,6 @@ cover: inttest .makecache/cover
 .makecache/cover: $(FIREBOLT_SRCS)
 	@echo ">> Computing test coverage"
 	@go get -u github.com/jpoles1/gopherbadger@1f4eedb7a3f6f2897d66f0aed24a5cc272a202a6
-	@grep -Ev '/mock_|/internal|/inttest' coverage.out > coverage-nomocks.out
+	@grep -Ev '/mock_|/internal|/inttest|/examples|/testutil' coverage.out > coverage-nomocks.out
 	@gopherbadger -covercmd "go tool cover -func=coverage-nomocks.out"
 	@touch $@
