@@ -96,8 +96,8 @@ firebolt app (or working on firebolt itself), install it following the
 
  An example for debian-based distros:
  ```
-sudo wget -qO - https://packages.confluent.io/deb/5.3/archive.key | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.3 stable main"
+sudo wget -qO - https://packages.confluent.io/deb/5.4/archive.key | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.4 stable main"
 sudo apt-get update
 sudo apt-get install -y librdkafka1 librdkafka-dev
 ```
