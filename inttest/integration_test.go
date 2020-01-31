@@ -114,7 +114,9 @@ func waitForEvents(t *testing.T, expected int, ch chan firebolt.Event) error {
 	err := testutil.AwaitCondition(func() bool {
 		return len(ch) >= expected
 	}, 250*time.Millisecond, 60*time.Second)
-	fmt.Printf("failed, only consumed %d messages\n", len(ch))
+	if err != nil {
+		fmt.Printf("failed, only consumed %d messages\n", len(ch))
+	}
 	assert.NoError(t, err, "consumed %d messages", len(ch))
 	return err
 }
@@ -197,6 +199,7 @@ func TestRecovery(t *testing.T) {
 	assert.Nil(t, err)
 	go errorConsumer.Start()
 	err = waitForEvents(t, 2100, successCh)
+	err = waitForEvents(t, 70, errCh)
 	time.Sleep(5 * time.Second) // we still sleep a bit to make sure we got 'em all; the 2100 on the line above isn't exact
 	assert.NoError(t, err)
 	go errorConsumer.Shutdown()
