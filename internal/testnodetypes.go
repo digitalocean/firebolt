@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/digitalocean/firebolt/node/kafkaproducer"
+
 	"github.com/digitalocean/firebolt/node/elasticsearch"
 
 	log "github.com/sirupsen/logrus"
@@ -70,7 +72,7 @@ func RegisterTestNodeTypes() {
 
 	node.GetRegistry().RegisterNodeType("stringtobytesnode", func() node.Node {
 		return &StringToBytesNode{}
-	}, reflect.TypeOf(""), reflect.TypeOf(([]byte)(nil)))
+	}, reflect.TypeOf(""), reflect.TypeOf(kafkaproducer.ProduceRequest{}))
 
 	node.GetRegistry().RegisterNodeType("asyncfilternode", func() node.Node {
 		return &AsyncFilterNode{}
@@ -298,7 +300,11 @@ func (s *StringToBytesNode) Process(event *firebolt.Event) (*firebolt.Event, err
 	}
 
 	bytes := []byte(str)
-	return event.WithPayload(bytes), nil
+	produceRequest := kafkaproducer.ProduceRequest{
+		Message: bytes,
+	}
+
+	return event.WithPayload(produceRequest), nil
 }
 
 // Shutdown provides an opportunity for the Node to clean up resources on shutdown

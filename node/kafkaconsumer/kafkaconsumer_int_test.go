@@ -36,7 +36,10 @@ func TestKafkaConsumer(t *testing.T) {
 	// produce 1000 records
 	for i := 0; i < 1000; i++ {
 		kp.Process(&firebolt.Event{
-			Payload: []byte(fmt.Sprintf("record number %d", i)),
+			Payload: kafkaproducer.ProduceRequest{
+				Topic:   topicName,
+				Message: []byte(fmt.Sprintf("record number %d", i)),
+			},
 			Created: time.Now(),
 		})
 	}
@@ -73,7 +76,9 @@ func TestKafkaConsumer(t *testing.T) {
 	// produce 1000 records
 	for i := 0; i < 1000; i++ {
 		kp.Process(&firebolt.Event{
-			Payload: []byte(fmt.Sprintf("record number %d", i)),
+			Payload: kafkaproducer.ProduceRequest{
+				Message: []byte(fmt.Sprintf("record number %d", i)),
+			},
 			Created: time.Now(),
 		})
 	}
