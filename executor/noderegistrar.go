@@ -27,7 +27,7 @@ func RegisterBuiltinNodeTypes() {
 
 	node.GetRegistry().RegisterNodeType("kafkaproducer", func() node.Node {
 		return &kafkaproducer.KafkaProducer{}
-	}, reflect.TypeOf(kafkaproducer.ProduceRequest{}), nil)
+	}, reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem(), nil)
 
 	node.GetRegistry().RegisterNodeType("errorkafkaproducer", func() node.Node {
 		return &kafkaproducer.ErrorProducer{}

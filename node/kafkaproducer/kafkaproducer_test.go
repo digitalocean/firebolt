@@ -60,8 +60,8 @@ func TestKafkaProducer(t *testing.T) {
 	assert.NotNil(t, kp.stopChan)
 
 	result, err := kp.Process(&firebolt.Event{
-		Payload: ProduceRequest{
-			Message: []byte("<191>2006-01-02T15:04:05.999999-07:00 host.example.org test: @cee:{\"a\":\"b\"}\n"),
+		Payload: &firebolt.SimpleProduceRequest{
+			MessageBytes: []byte("<191>2006-01-02T15:04:05.999999-07:00 host.example.org test: @cee:{\"a\":\"b\"}\n"),
 		},
 	})
 	assert.Nil(t, err)

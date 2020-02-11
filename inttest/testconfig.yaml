@@ -25,7 +25,7 @@ nodes:
               brokers: localhost:9092
               topic: firebolt-inttest-err
         children:
-          - name: stringtobytesnode
+          - name: stringtoproducerequestnode
             children:
               - name: kafkaproducer
                 workers: 2
@@ -42,7 +42,7 @@ nodes:
         workers: 1
         buffersize: 1
         children:
-          - name: stringtobytesnode
+          - name: stringtoproducerequestnode
             id: asyncstringtobytesnode
             children:
               - name: kafkaproducer

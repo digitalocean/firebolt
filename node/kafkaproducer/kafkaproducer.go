@@ -4,20 +4,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/digitalocean/firebolt"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/fbcontext"
 	"github.com/digitalocean/firebolt/util"
 )
-
-// ProduceRequest is the event payload type to use when passing data to the kafkaproducer node.
-type ProduceRequest struct {
-	Topic   string
-	Message []byte
-}
 
 // KafkaProducer is a firebolt node for producing messages onto a Kafka topic.
 type KafkaProducer struct {
@@ -98,15 +91,15 @@ func (k *KafkaProducer) checkConfig(config map[string]string) error {
 // Process sends a single event `msg` to the configured Kafka topic.
 func (k *KafkaProducer) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	// start with a type assertion because :sad-no-generics:
-	produceRequest, ok := event.Payload.(ProduceRequest)
+	produceRequest, ok := event.Payload.(firebolt.ProduceRequest)
 	if !ok {
 		return nil, errors.New("kafkaproducer: failed type assertion for conversion to ProduceRequest")
 	}
 
 	// allow overriding the node config topic on a per-msg basis
 	destinationTopic := k.topic
-	if produceRequest.Topic != "" {
-		destinationTopic = produceRequest.Topic
+	if produceRequest.Topic() != "" {
+		destinationTopic = produceRequest.Topic()
 	}
 	if destinationTopic == "" {
 		return nil, errors.New("kafkaproducer: missing topic name in both node config and ProduceRequest")
@@ -114,7 +107,7 @@ func (k *KafkaProducer) Process(event *firebolt.Event) (*firebolt.Event, error) 
 
 	kafkaMsg := &kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &destinationTopic, Partition: kafka.PartitionAny},
-		Value:          produceRequest.Message,
+		Value:          produceRequest.Message(),
 	}
 
 	k.Produce(kafkaMsg)

@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/digitalocean/firebolt/node/kafkaproducer"
-
 	"github.com/digitalocean/firebolt/node/elasticsearch"
 
 	log "github.com/sirupsen/logrus"
@@ -70,9 +68,9 @@ func RegisterTestNodeTypes() {
 		return &SlowNode{}
 	}, reflect.TypeOf(""), reflect.TypeOf(""))
 
-	node.GetRegistry().RegisterNodeType("stringtobytesnode", func() node.Node {
-		return &StringToBytesNode{}
-	}, reflect.TypeOf(""), reflect.TypeOf(kafkaproducer.ProduceRequest{}))
+	node.GetRegistry().RegisterNodeType("stringtoproducerequestnode", func() node.Node {
+		return &StringToProduceRequestNode{}
+	}, reflect.TypeOf(""), reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem())
 
 	node.GetRegistry().RegisterNodeType("asyncfilternode", func() node.Node {
 		return &AsyncFilterNode{}
@@ -282,38 +280,38 @@ func (r *ResultsNode) Receive(msg fbcontext.Message) error {
 	return nil
 }
 
-// StringToBytesNode is a Node that converts strings to []byte
-type StringToBytesNode struct {
+// StringToProduceRequestNode is a Node that converts strings to `firebolt.ProduceRequest`
+type StringToProduceRequestNode struct {
 	fbcontext.ContextAware
 }
 
-// Setup is a no-op in StringToBytesNode
-func (s *StringToBytesNode) Setup(config map[string]string) error {
+// Setup is a no-op in StringToProduceRequestNode
+func (s *StringToProduceRequestNode) Setup(config map[string]string) error {
 	return nil
 }
 
 // Process handles the event and returns an optional result, and an optional error
-func (s *StringToBytesNode) Process(event *firebolt.Event) (*firebolt.Event, error) {
+func (s *StringToProduceRequestNode) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	str, ok := event.Payload.(string)
 	if !ok {
 		return nil, errors.New("failed type assertion for conversion to string")
 	}
 
 	bytes := []byte(str)
-	produceRequest := kafkaproducer.ProduceRequest{
-		Message: bytes,
+	produceRequest := &firebolt.SimpleProduceRequest{
+		MessageBytes: bytes,
 	}
 
 	return event.WithPayload(produceRequest), nil
 }
 
 // Shutdown provides an opportunity for the Node to clean up resources on shutdown
-func (s *StringToBytesNode) Shutdown() error {
+func (s *StringToProduceRequestNode) Shutdown() error {
 	return nil
 }
 
 // Receive handles a message from another node or an external source
-func (s *StringToBytesNode) Receive(msg fbcontext.Message) error {
+func (s *StringToProduceRequestNode) Receive(msg fbcontext.Message) error {
 	return errors.New("message not supported")
 }
 

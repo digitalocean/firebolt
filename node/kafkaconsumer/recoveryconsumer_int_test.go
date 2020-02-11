@@ -313,8 +313,8 @@ func produceTestRecords(topicName string, numRecords int, t *testing.T) {
 	assert.Nil(t, err)
 	for i := 0; i < numRecords; i++ {
 		kp.Process(&firebolt.Event{
-			Payload: kafkaproducer.ProduceRequest{
-				Message: []byte(fmt.Sprintf("record number %d", i)),
+			Payload: &firebolt.SimpleProduceRequest{
+				MessageBytes: []byte(fmt.Sprintf("record number %d", i)),
 			},
 			Created: time.Now(),
 		})

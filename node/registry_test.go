@@ -19,7 +19,7 @@ func registerNodeTypes() {
 
 	GetRegistry().RegisterNodeType("kafkaproducer", func() Node {
 		return &kafkaproducer.KafkaProducer{}
-	}, reflect.TypeOf(([]byte)(nil)), nil)
+	}, reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem(), nil)
 
 	GetRegistry().RegisterNodeType("errorkafkaproducer", func() Node {
 		return &kafkaproducer.ErrorProducer{}

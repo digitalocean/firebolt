@@ -33,7 +33,7 @@ nodes:
               brokers: localhost:9092
               topic: firebolt-inttest-err
         children:
-          - name: stringtobytesnode
+          - name: stringtoproducerequestnode
             children:
               - name: kafkaproducer
                 workers: 2

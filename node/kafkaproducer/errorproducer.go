@@ -32,8 +32,8 @@ func (ep *ErrorProducer) Process(event *firebolt.Event) (*firebolt.Event, error)
 	}
 
 	return ep.KafkaProducer.Process(&firebolt.Event{
-		Payload: ProduceRequest{
-			Message: errBytes,
+		Payload: &firebolt.SimpleProduceRequest{
+			MessageBytes: errBytes,
 		},
 		Created: event.Created,
 	})
