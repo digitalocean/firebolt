@@ -1,3 +1,5 @@
+// +build !race
+
 package kafkaproducer
 
 import (
@@ -39,25 +41,33 @@ func TestSetupInvalidConfig(t *testing.T) {
 }
 
 func TestKafkaProducer(t *testing.T) {
-	// without infrastructure set up for an integration test, best we can do is ensuring that msg makes it to the producer ch
+	// without infrastructure set up for an integration test, best we can do is ensuring that msg makes it to the producer
 	kp := &KafkaProducer{}
 	config := createValidConfig()
-
 	kp.Setup(config)
+
+	// prepare a mock for the actual producer
+	mockProducer := &MockMessageProducer{}
+	kp.producer = mockProducer
+	produceCh := make(chan *kafka.Message, 1000)
+	mockProducer.On("ProduceChannel").Return(produceCh)
+	mockProducer.On("Flush", 5000).Return(0)
+	mockProducer.On("Events").Return(make(chan kafka.Event))
+	mockProducer.On("Close").Return()
+
 	assert.NotNil(t, kp.producer)
 	assert.Equal(t, "testtopic", kp.topic)
 	assert.NotNil(t, kp.stopChan)
 
 	result, err := kp.Process(&firebolt.Event{
-		Payload: []byte("<191>2006-01-02T15:04:05.999999-07:00 host.example.org test: @cee:{\"a\":\"b\"}\n"),
+		Payload: &firebolt.SimpleProduceRequest{
+			MessageBytes: []byte("<191>2006-01-02T15:04:05.999999-07:00 host.example.org test: @cee:{\"a\":\"b\"}\n"),
+		},
 	})
 	assert.Nil(t, err)
 	assert.Nil(t, result) // kafkaproducer is a sink node, no data is passed to children
-	//assert.Equal(t, 1, len(kp.producer.ProduceChannel()))
+	assert.Equal(t, 1, len(kp.producer.ProduceChannel()))
 
 	err = kp.Shutdown()
 	assert.Nil(t, err)
-	assert.Panics(t, func() {
-		kp.producer.ProduceChannel() <- &kafka.Message{} // confirm that the channel is closed, shutdown was successful
-	})
 }

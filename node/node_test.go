@@ -33,7 +33,7 @@ func registerTestNodeTypes() {
 
 	node.GetRegistry().RegisterNodeType("kafkaproducer", func() node.Node {
 		return &kafkaproducer.KafkaProducer{}
-	}, reflect.TypeOf(([]byte)(nil)), nil)
+	}, reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem(), nil)
 
 	node.GetRegistry().RegisterNodeType("errorkafkaproducer", func() node.Node {
 		return &kafkaproducer.ErrorProducer{}
@@ -42,11 +42,11 @@ func registerTestNodeTypes() {
 	// test types
 	node.GetRegistry().RegisterNodeType("filternode", func() node.Node {
 		return &FilterNode{}
-	}, reflect.TypeOf(""), reflect.TypeOf(([]byte)(nil)))
+	}, reflect.TypeOf(""), reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem())
 
 	node.GetRegistry().RegisterNodeType("asyncfilternode", func() node.Node {
 		return &AsyncFilterNode{}
-	}, reflect.TypeOf(""), reflect.TypeOf(([]byte)(nil)))
+	}, reflect.TypeOf(""), reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem())
 }
 
 func TestInitContext(t *testing.T) {
@@ -274,7 +274,7 @@ func (f *FilterNode) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	}
 	if !strings.HasPrefix(str, "filter") {
 		return &firebolt.Event{
-			Payload: str,
+			Payload: &firebolt.SimpleProduceRequest{MessageBytes: []byte(str)},
 			Created: event.Created,
 		}, nil
 	}
@@ -312,7 +312,7 @@ func (a *AsyncFilterNode) ProcessAsync(event *firebolt.AsyncEvent) {
 	if !strings.HasPrefix(str, "asyncfilter") {
 		event.ReturnEvent(&firebolt.AsyncEvent{
 			Event: &firebolt.Event{
-				Payload: str,
+				Payload: &firebolt.SimpleProduceRequest{MessageBytes: []byte(str)},
 				Created: event.Created,
 			},
 		})

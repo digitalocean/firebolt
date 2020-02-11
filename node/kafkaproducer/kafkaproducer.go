@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/digitalocean/firebolt"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/fbcontext"
 	"github.com/digitalocean/firebolt/util"
 )
@@ -86,24 +85,29 @@ func (k *KafkaProducer) checkConfig(config map[string]string) error {
 		return fmt.Errorf("kafkaproducer: missing or invalid value for config 'brokers': %s", config["brokers"])
 	}
 
-	if config["topic"] == "" {
-		return fmt.Errorf("kafkaproducer: missing or invalid value for config 'topic': %s", config["topic"])
-	}
-
 	return nil
 }
 
 // Process sends a single event `msg` to the configured Kafka topic.
 func (k *KafkaProducer) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	// start with a type assertion because :sad-no-generics:
-	rawMsg, ok := event.Payload.([]byte)
+	produceRequest, ok := event.Payload.(firebolt.ProduceRequest)
 	if !ok {
-		return nil, errors.New("kafkaproducer failed type assertion for conversion to []byte")
+		return nil, errors.New("kafkaproducer: failed type assertion for conversion to ProduceRequest")
+	}
+
+	// allow overriding the node config topic on a per-msg basis
+	destinationTopic := k.topic
+	if produceRequest.Topic() != "" {
+		destinationTopic = produceRequest.Topic()
+	}
+	if destinationTopic == "" {
+		return nil, errors.New("kafkaproducer: missing topic name in both node config and ProduceRequest")
 	}
 
 	kafkaMsg := &kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &k.topic, Partition: kafka.PartitionAny},
-		Value:          rawMsg,
+		TopicPartition: kafka.TopicPartition{Topic: &destinationTopic, Partition: kafka.PartitionAny},
+		Value:          produceRequest.Message(),
 	}
 
 	k.Produce(kafkaMsg)
