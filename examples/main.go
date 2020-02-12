@@ -4,18 +4,16 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/digitalocean/firebolt/testutil"
-
-	"github.com/digitalocean/firebolt/examples/shared"
-
-	"github.com/digitalocean/firebolt/node/elasticsearch"
-
 	"github.com/digitalocean/captainslog"
+	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/examples/kafkatokafka"
 	"github.com/digitalocean/firebolt/examples/logging"
+	"github.com/digitalocean/firebolt/examples/shared"
 	"github.com/digitalocean/firebolt/executor"
 	"github.com/digitalocean/firebolt/metrics"
 	"github.com/digitalocean/firebolt/node"
+	"github.com/digitalocean/firebolt/node/elasticsearch"
+	"github.com/digitalocean/firebolt/testutil"
 )
 
 // choose an example to run; see 'runKafkaToKafka()' or 'runLogging()' for the actual example code
@@ -60,7 +58,7 @@ func runKafkaToKafka() {
 	// register the jsonbuilder node
 	node.GetRegistry().RegisterNodeType("jsonbuilder", func() node.Node {
 		return &kafkatokafka.JSONBuilder{}
-	}, reflect.TypeOf(captainslog.SyslogMsg{}), reflect.TypeOf([]byte(nil)))
+	}, reflect.TypeOf(captainslog.SyslogMsg{}), reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem())
 
 	// read the config file and start the firebolt executor
 	ex, err := executor.New(executor.WithConfigFile("kafkatokafka/firebolt.yaml"))
