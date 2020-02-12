@@ -2,12 +2,14 @@
 
  ||||
  |--------------|:--------:|--------|
- | **Accepts:** | `[]byte` | Parent node should serialize to the byte representation that will be put on the kafka topic |
+ | **Accepts:** | `*firebolt.ProduceRequest` | The ProduceRequest interface requires a `Message()` method that returns the raw byte representation that will be put on the kafka topic.   The `Topic()` method can optionally return a topic name that overrides the static topic provided in the configuration (see below). |
  | **Returns:** |  n/a     | All events are filtered; this node acts as a sink |
 
 
 The `kafkaproducer` is a built-in node type for producing events onto a kafka topic.   Any encoding can be used, but you
-must perform the encoding and convert to `[]byte` in the parent node.
+must perform the encoding and convert to `[]byte` in the parent node, then use that byte array to build a `*firebolt.ProduceRequest`.
+
+A trivial implementation of the `ProduceRequest` interface is provided, `firebolt.SimpleProduceRequest`, that can be used in many cases.
 
 Internally, `kafkaproducer` uses an async producer based on the `confluent-kafka-go` client.
 

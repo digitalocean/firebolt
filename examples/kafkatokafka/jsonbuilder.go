@@ -52,9 +52,12 @@ func (j *JSONBuilder) Process(event *firebolt.Event) (*firebolt.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	//println("built JSON: " + string(jsonBytes))
 
-	return event.WithPayload(jsonBytes), nil
+	produceRequest := &firebolt.SimpleProduceRequest{
+		MessageBytes: jsonBytes,
+	}
+
+	return event.WithPayload(produceRequest), nil
 }
 
 // Shutdown is a no-op in jsonbuilder.   This is where you'd clean up any resources on application shutdown.

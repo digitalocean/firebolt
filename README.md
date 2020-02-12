@@ -90,12 +90,12 @@ Some of the concerns Firebolt addresses include:
 
 ## Developing
 
-Firebolt depends on [librdkafka](https://github.com/edenhill/librdkafka) v1.1.0 or later.   To get started building a 
+Firebolt depends on [librdkafka](https://github.com/edenhill/librdkafka) v1.3.0 or later.   To get started building a 
 firebolt app (or working on firebolt itself), install it following the 
 [instructions here](https://github.com/edenhill/librdkafka#installation).
 
  An example for debian-based distros:
- ```
+```
 sudo wget -qO - https://packages.confluent.io/deb/5.4/archive.key | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.4 stable main"
 sudo apt-get update
