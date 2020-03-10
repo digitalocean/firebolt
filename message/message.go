@@ -58,7 +58,7 @@ func ShutdownKafkaSender() {
 // GetSender returns the singleton sender
 func GetSender() Sender {
 	if senderSingleton == nil {
-		panic("message: illegal attempt to access messagesender before initialization")
+		log.Error("message: illegal attempt to access messagesender before initialization")
 	}
 	return senderSingleton
 }

@@ -29,6 +29,7 @@ func TestElasticsearchNode(t *testing.T) {
 
 	// create an index
 	testutil.WaitForPort(t, 9200)                       // wait for ES to be up
+	time.Sleep(time.Second)                             // this test is slightly flaky without a small sleep after the listener is up
 	err := testutil.CreateElasticsearchIndex(indexName) // create the ES target index
 	assert.NoError(t, err)
 
