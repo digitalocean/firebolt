@@ -25,6 +25,8 @@ Internally, `elasticsearch` uses the `BulkService` in the `olivere/elastic` clie
 Param                     | Required | Default | Description              
 --------------------------|:--------:|---------|--------------
 elastic-addr              |  *       |         | Comma-separated list of Elasticsearch client nodes.
+elastic-username          |          |         | Username used in http/basic authentication.
+elastic-password          |          |         | Password used in http/basic authentication.
 batch-size                |          | 100     | Wait until this many documents are collected and send them as a single batch.
 batch-max-wait-ms         |          | 1000    | Max time, in ms, to wait for `batch-size` documents to be ready before sending a smaller batch.
 bulk-index-timeout-ms     |          | 5000    | Timeout passed to Elasticsearch along with the bulk index request.
