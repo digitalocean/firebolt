@@ -26,6 +26,8 @@ type esBulkServiceFactory struct {
 	ctx              context.Context
 	connectLock      sync.RWMutex
 	esURL            string
+	esUsername       string
+	esPassword       string
 	esClient         *elastic.Client
 	reconnectBatches int64
 	timeoutMs        int
@@ -33,11 +35,13 @@ type esBulkServiceFactory struct {
 	metrics          *Metrics
 }
 
-func newEsBulkServiceFactory(ctx context.Context, url string, reconnectBatches int, timeoutMs int, metrics *Metrics) *esBulkServiceFactory {
+func newEsBulkServiceFactory(ctx context.Context, url string, esUsername string, esPassword string, reconnectBatches int, timeoutMs int, metrics *Metrics) *esBulkServiceFactory {
 	factory := &esBulkServiceFactory{
 		ctx:              ctx,
 		connectLock:      sync.RWMutex{},
 		esURL:            url,
+		esUsername:       esUsername,
+		esPassword:       esPassword,
 		reconnectBatches: int64(reconnectBatches),
 		timeoutMs:        timeoutMs,
 		metrics:          metrics,
@@ -69,7 +73,7 @@ func (e *esBulkServiceFactory) reconnect(ctx context.Context) {
 	defer e.connectLock.Unlock()
 
 	for true {
-		esClient, err := elastic.NewSimpleClient(elastic.SetURL(e.esURL))
+		esClient, err := elastic.NewSimpleClient(elastic.SetURL(e.esURL), elastic.SetBasicAuth(e.esUsername, e.esPassword))
 		if err == nil {
 			e.esClient = esClient
 			return

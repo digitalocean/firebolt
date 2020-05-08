@@ -37,6 +37,16 @@ func (i *Elasticsearch) Setup(cfgMap map[string]string) error {
 		return err
 	}
 
+	esUsername, err := config.StringConfig("elastic-username", "")
+	if err != nil {
+		return err
+	}
+
+	esPassword, err := config.StringConfig("elastic-password", "")
+	if err != nil {
+		return err
+	}
+
 	batchSize, err := config.IntConfig("batch-size", 100, 1, math.MaxInt32)
 	if err != nil {
 		return err
@@ -78,7 +88,7 @@ func (i *Elasticsearch) Setup(cfgMap map[string]string) error {
 
 	// service factory; in tests it must be prepopulated with a mock
 	if i.serviceFactory == nil {
-		i.serviceFactory = newEsBulkServiceFactory(ctx, esURL, reconnectBatchCount, bulkIndexTimeoutMs, metrics)
+		i.serviceFactory = newEsBulkServiceFactory(ctx, esURL, esUsername, esPassword, reconnectBatchCount, bulkIndexTimeoutMs, metrics)
 	}
 
 	i.indexClient = NewElasticIndexClient(
