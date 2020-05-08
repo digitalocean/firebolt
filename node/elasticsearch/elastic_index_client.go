@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/digitalocean/firebolt"
+	elastic "github.com/olivere/elastic/v7"
 
-	"github.com/olivere/elastic/v7"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -231,16 +231,18 @@ func (c *ElasticIndexClient) handleErrorResponses(retryCount int, res *elastic.B
 					continue
 				} else {
 					log.WithFields(log.Fields{
-						"error_type":   i.Error.Type,
-						"error_reason": i.Error.Reason,
+						"es_error_type":   i.Error.Type,
+						"es_error_reason": i.Error.Reason,
 					}).Debug("bulk indexing failure")
 				}
 
 				// don't retry mapping failures, zero chance of success on retry
 				isTypeConflict := i.Error.Type == "mapper_parsing_exception"
-				log.WithField("es_error", i.Error).
-					WithField("type_conflict", isTypeConflict).
-					Debug("elasticsearch: failed to index, elasticsearch returned an error")
+				log.WithFields(log.Fields{
+					"es_error_type":   i.Error.Type,
+					"es_error_reason": i.Error.Reason,
+					"type_conflict":   isTypeConflict,
+				}).Debug("elasticsearch: failed to index, elasticsearch returned an error")
 
 				if !isTypeConflict {
 					retryRequests = append(retryRequests, req)
@@ -251,6 +253,14 @@ func (c *ElasticIndexClient) handleErrorResponses(retryCount int, res *elastic.B
 					e := firebolt.NewFBError("ES_INDEX_ERROR", "failed to index to elasticsearch", firebolt.WithInfo(i.Error))
 					c.metrics.IndexErrors.WithLabelValues(i.Error.Type).Inc()
 					req.Event.ReturnError(e)
+				}
+
+				// log errors at max retries
+				if retryCount == c.maxRetries {
+					log.WithFields(log.Fields{
+						"es_error_type":   i.Error.Type,
+						"es_error_reason": i.Error.Reason,
+					}).Warn("elasticsearch: batch index operation failed after max retries")
 				}
 			} else {
 				// success (this is the case where there were a mix of errors and successes in this bulk request)
