@@ -39,13 +39,13 @@ func (c Nodeconfig) IntConfigRequired(name string, minValue int, maxValue int) (
 	return intValue, nil
 }
 
-// StringConfig validates and fetches the int-typed optional config value specified by 'name', using the 'defaultValue' if
+// StringConfig validates and fetches the string-typed optional config value specified by 'name', using the 'defaultValue' if
 // no value was provided in the configuration.
-func (c Nodeconfig) StringConfig(name string, defaultValue int) (string, error) {
+func (c Nodeconfig) StringConfig(name string, defaultValue string) (string, error) {
 	// set the default value, if not provided
 	_, ok := c[name]
 	if !ok {
-		c[name] = strconv.Itoa(defaultValue)
+		c[name] = defaultValue
 	}
 
 	return c.StringConfigRequired(name)
