@@ -195,7 +195,7 @@ func (e *Executor) Execute() {
 		close(rootNode.Ch)
 	}
 
-	if waitTimeout(&e.wg, 10*time.Second) {
+	if waitTimeout(&e.wg, time.Duration(e.config.ShutdownTimeOut)*time.Second) {
 		// there was a timeout, resort to forcible shutdown
 		for _, rootNode := range e.rootNodes {
 			e.stopWorkers(rootNode)
@@ -334,7 +334,9 @@ func (e *Executor) startWorkers(node *node.Context) {
 
 func (e *Executor) stopWorkers(node *node.Context) {
 	for i := 0; i < node.Config.Workers; i++ {
-		node.StopCh <- true
+		go func() {
+			node.StopCh <- true
+		}()
 	}
 
 	log.WithField("node_id", node.Config.ID).Info("executor: shutting down node")

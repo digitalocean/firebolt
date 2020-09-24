@@ -24,6 +24,7 @@ type Config struct {
 	InternalData    *InternalDataConfig `yaml:"internaldata"`
 	Source          *node.SourceConfig  `yaml:"source"`
 	Nodes           []*node.Config      `yaml:"nodes"`
+	ShutdownTimeOut int                 `yaml:"shutdowntimeout"`
 }
 
 // InternalDataTransportKafka is the transport name for using Kafka as the internal data transport.
@@ -61,6 +62,10 @@ func Read(file string) (*Config, error) {
 	if err != nil {
 		log.Error("startup failed due to configuration validation errors")
 		return nil, err
+	}
+
+	if c.ShutdownTimeOut <= 0 {
+		c.ShutdownTimeOut = 10
 	}
 
 	log.WithField("configfile", file).Info("read config file")
