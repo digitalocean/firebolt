@@ -196,7 +196,11 @@ func (nc *Context) invokeProcessorAsync(event *firebolt.Event) {
 	}
 	eventFunc := func(result *firebolt.AsyncEvent) {
 		metrics.Node().ProcessTime.WithLabelValues(nc.Config.ID).Observe(time.Since(start).Seconds())
-		nc.handleResult(nil, event, result.Event)
+		if result != nil {
+			nc.handleResult(nil, event, result.Event)
+		} else {
+			nc.handleResult(nil, event, nil)
+		}
 	}
 	filterFunc := func() {
 		metrics.Node().ProcessTime.WithLabelValues(nc.Config.ID).Observe(time.Since(start).Seconds())
