@@ -60,7 +60,7 @@ func (k *KafkaProducer) buildConfigMap(config map[string]string) (*kafka.ConfigM
 		return nil, err
 	}
 
-	// default kafka consumer config
+	// default kafka producer config
 	configMap := &kafka.ConfigMap{
 		"bootstrap.servers":            config["brokers"],
 		"statistics.interval.ms":       60000,
