@@ -127,8 +127,11 @@ func TestSetup(t *testing.T) {
 	kc := &KafkaConsumer{}
 	config := createValidConfig()
 	err := kc.Setup(config, ch)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, kc.consumer)
+
+	err = kc.Shutdown()
+	assert.NoError(t, err)
 }
 
 func TestSetupInvalidConfig(t *testing.T) {
@@ -234,6 +237,9 @@ func TestProcessEvent(t *testing.T) {
 		Value: ([]byte)("one more test"),
 	})
 	assert.Equal(t, 2, len(ch))
+
+	err = kc.Shutdown()
+	assert.NoError(t, err)
 }
 
 func TestProcessEventPartitionAssignment(t *testing.T) {

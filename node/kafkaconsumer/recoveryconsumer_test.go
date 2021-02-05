@@ -36,8 +36,10 @@ func TestRecoveryConsumerSetup(t *testing.T) {
 	m := &Metrics{}
 	m.RegisterConsumerMetrics()
 	rc, err := NewRecoveryConsumer("logs-all", ch, config, m, nil)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, rc.consumer)
+
+	rc.Shutdown()
 }
 
 func TestRefreshAssignments(t *testing.T) {
