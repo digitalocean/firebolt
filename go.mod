@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/Comcast/go-leaderelection v0.0.0-20181102191523-272fd9e2bddc
 	github.com/OpenPeeDeeP/depguard v1.0.1 // indirect
+	github.com/Shopify/sarama v1.27.2
 	github.com/confluentinc/confluent-kafka-go v1.5.2
 	github.com/digitalocean/captainslog v0.0.0-20190610170928-cd175de8a6e2
 	github.com/fatih/color v1.10.0 // indirect
@@ -19,7 +20,6 @@ require (
 	github.com/golangci/revgrep v0.0.0-20180812185044-276a5c0a1039 // indirect
 	github.com/gostaticanalysis/analysisutil v0.6.1 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20201221231540-e56b841a3c88 // indirect
@@ -38,7 +38,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.7.1 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.2.1 // indirect
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v0.0.0-20180105212114-65a9db5fad51 // indirect
@@ -50,7 +50,6 @@ require (
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 	golang.org/x/tools v0.1.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/unparam v0.0.0-20210104141923-aac4ce9116a7 // indirect

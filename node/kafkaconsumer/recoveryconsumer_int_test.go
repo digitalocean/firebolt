@@ -30,6 +30,7 @@ func TestRecoveryConsumerPartitionAssignment(t *testing.T) {
 
 	topicName := fmt.Sprintf("recoveryconsumer-partitionassignment-%d", time.Now().UnixNano())
 	println("recoveryconsumer partition assignment integration test using topic " + topicName)
+	testutil.EnsureTestTopicExists(topicName, 4)
 
 	kc, err := startKafkaConsumerWithMockContext(topicName, 500, 200, t)
 	assert.Nil(t, err)
@@ -55,8 +56,9 @@ func TestRecoveryConsumerPartitionAssignment(t *testing.T) {
 		Partition: 3,
 		Offset:    kafka.Offset(0),
 	}
+
 	err = kc.assignPartitions([]kafka.TopicPartition{tp1, tp2, tp3, tp4})
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// the recoverytracker doesn't have any recoveryrequests yet, so no partitions should have been assigned in recoveryconsumer
 	assert.NotNil(t, kc.recoveryConsumer)
