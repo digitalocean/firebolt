@@ -15,7 +15,7 @@ import (
 func AwaitCondition(cond util.Condition, period time.Duration, maxWait time.Duration) error {
 	started := time.Now()
 	for !cond() {
-		if time.Now().Sub(started) >= maxWait {
+		if time.Since(started) >= maxWait {
 			return fmt.Errorf("awaitcondition failed after %s", maxWait)
 		}
 		time.Sleep(period)

@@ -401,6 +401,7 @@ func (k *KafkaConsumer) Shutdown() error {
 	log.Info("kafkaconsumer: shutdown initiated")
 	k.doneCh <- struct{}{}
 	k.assignPartitionsCancel()
+	log.Info("kafkaconsumer: closing consumer")
 	err := k.consumer.Close()
 	if err != nil {
 		log.WithError(err).Error("kafkaconsumer: error while closing kafka consumer")
