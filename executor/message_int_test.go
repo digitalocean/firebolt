@@ -69,6 +69,7 @@ func TestKafkaMessageTransport(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
 	topicName := fmt.Sprintf("fb-message-inttest-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(topicName, 4)
 	previousExecutor, err := newExecutorForMessageTopic(topicName)
 	assert.Nil(t, err)
 
