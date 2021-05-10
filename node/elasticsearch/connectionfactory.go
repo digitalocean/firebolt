@@ -55,10 +55,10 @@ func newEsBulkServiceFactory(ctx context.Context, url string, esUsername string,
 func (e *esBulkServiceFactory) BulkService() bulkService {
 
 	// periodically establish a new connection to help prevent hotspots in ES clusters with multiple client nodes
-	atomic.AddInt64(&e.batchCount, 1)
-	if e.batchCount == e.reconnectBatches {
+	count := atomic.AddInt64(&e.batchCount, 1)
+	if count == e.reconnectBatches {
 		e.reconnect(e.ctx)
-		e.batchCount = 0
+		atomic.StoreInt64(&e.batchCount, 0)
 	}
 
 	// read lock before using the client conn allows many goroutines to run at once while blocking operations during a reconnect
