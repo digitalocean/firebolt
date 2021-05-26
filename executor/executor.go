@@ -372,7 +372,7 @@ func (e *Executor) runNode(node *node.Context) {
 				node.ShutdownOnce.Do(func() {
 					err := node.NodeProcessor.Shutdown()
 					if err != nil {
-						log.WithField("node_id", node.Config.ID).Errorf("executor: error shutting down node: %s", err)
+						log.WithError(err).WithField("node_id", node.Config.ID).Error("executor: error during node shutdown")
 					} else {
 						log.WithField("node_id", node.Config.ID).Info("executor: node has been shutdown")
 					}
