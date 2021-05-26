@@ -374,7 +374,7 @@ func (e *Executor) runNode(node *node.Context) {
 					if err != nil {
 						log.WithField("node_id", node.Config.ID).Errorf("executor: error shutting down node: %s", err)
 					} else {
-						log.WithField("node_id", node.Config.ID).Error("executor: node has been shutdown")
+						log.WithField("node_id", node.Config.ID).Info("executor: node has been shutdown")
 					}
 					for _, child := range node.Children {
 						log.WithField("node_id", child.Config.ID).Info("executor: closing channel")
