@@ -370,6 +370,12 @@ func (e *Executor) runNode(node *node.Context) {
 
 				// only after the last worker has finished should we close child channels, and we should only close them once
 				node.ShutdownOnce.Do(func() {
+					err := node.NodeProcessor.Shutdown()
+					if err != nil {
+						log.WithField("node_id", node.Config.ID).Errorf("executor: error shutting down node: %s", err)
+					} else {
+						log.WithField("node_id", node.Config.ID).Error("executor: node has been shutdown")
+					}
 					for _, child := range node.Children {
 						log.WithField("node_id", child.Config.ID).Info("executor: closing channel")
 						close(child.Ch)
