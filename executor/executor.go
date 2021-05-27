@@ -339,12 +339,6 @@ func (e *Executor) stopWorkers(node *node.Context) {
 		}()
 	}
 
-	log.WithField("node_id", node.Config.ID).Info("executor: shutting down node")
-	err := node.NodeProcessor.Shutdown()
-	if err != nil {
-		log.WithError(err).WithField("node_id", node.Config.ID).Error("executor: error during node shutdown")
-	}
-
 	for _, child := range node.Children {
 		e.stopWorkers(child)
 	}
@@ -357,10 +351,21 @@ func (e *Executor) runNode(node *node.Context) {
 	log.WithField("node_id", nodeID).Debug("executor: running node")
 	defer e.wg.Done()
 
+	shutDownNode := func() {
+		log.WithField("node_id", node.Config.ID).Info("executor: shutting down node")
+		err := node.NodeProcessor.Shutdown()
+		if err != nil {
+			log.WithError(err).WithField("node_id", node.Config.ID).Error("executor: error during node shutdown")
+			return
+		}
+		log.WithField("node_id", node.Config.ID).Info("executor: node has been shutdown successfully")
+	}
+
 	for {
 		select {
 		case <-node.StopCh:
 			log.WithField("node_id", nodeID).Info("executor: forcibly stopping node")
+			shutDownNode()
 			return
 		case event, ok := <-node.Ch:
 			if !ok {
@@ -370,12 +375,7 @@ func (e *Executor) runNode(node *node.Context) {
 
 				// only after the last worker has finished should we close child channels, and we should only close them once
 				node.ShutdownOnce.Do(func() {
-					err := node.NodeProcessor.Shutdown()
-					if err != nil {
-						log.WithError(err).WithField("node_id", node.Config.ID).Error("executor: error during node shutdown")
-					} else {
-						log.WithField("node_id", node.Config.ID).Info("executor: node has been shutdown")
-					}
+					shutDownNode()
 					for _, child := range node.Children {
 						log.WithField("node_id", child.Config.ID).Info("executor: closing channel")
 						close(child.Ch)
