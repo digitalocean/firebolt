@@ -78,6 +78,7 @@ func (k *KafkaConsumer) Setup(config map[string]string, eventchan chan firebolt.
 	}
 	k.consumer = c
 	k.topics = strings.Split(config["topic"], ",")
+	log.Debugf("subscribing to topics: %s", k.topics)
 	k.sendCh = eventchan
 	k.doneCh = make(chan struct{}, 1)
 	k.assignPartitionsMutex = sync.Mutex{}
