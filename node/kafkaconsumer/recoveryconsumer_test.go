@@ -35,7 +35,7 @@ func TestRecoveryConsumerSetup(t *testing.T) {
 	config := createRecoveryConsumerConfig()
 	m := &Metrics{}
 	m.RegisterConsumerMetrics()
-	rc, err := NewRecoveryConsumer("logs-all", ch, config, m, nil)
+	rc, err := NewRecoveryConsumer([]string{"logs-all"}, ch, config, m, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, rc.consumer)
 
@@ -51,23 +51,23 @@ func TestRefreshAssignments(t *testing.T) {
 	rc.metrics = m
 	mockConsumer := &kafkainterface.MockMessageConsumer{}
 	rc.consumer = mockConsumer
-	rc.topic = "unit-test"
+	rc.topics = []string{"unit-test"}
 	rc.tracker = &RecoveryTracker{}
 
 	// assigned partitions X recovery requests = active recovery partitions
 	assigned := make([]kafka.TopicPartition, 4)
 	assigned[0] = kafka.TopicPartition{
-		Topic:     &rc.topic,
+		Topic:     &rc.topics[0],
 		Partition: 0,
 		Offset:    kafka.Offset(0),
 	}
 	assigned[1] = kafka.TopicPartition{
-		Topic:     &rc.topic,
+		Topic:     &rc.topics[0],
 		Partition: 1,
 		Offset:    kafka.Offset(0),
 	}
 	assigned[2] = kafka.TopicPartition{
-		Topic:     &rc.topic,
+		Topic:     &rc.topics[0],
 		Partition: 2,
 		Offset:    kafka.Offset(0),
 	}
@@ -124,7 +124,7 @@ func TestProcessRecoveryKafkaError(t *testing.T) {
 	m := &Metrics{}
 	m.RegisterConsumerMetrics()
 	rc.metrics = m
-	rc.topic = "unit-test"
+	rc.topics = []string{"unit-test"}
 	rc.tracker = &RecoveryTracker{}
 	rc.tracker.recoveryRequests = make(map[int32]*RecoveryRequests)
 	rc.tracker.metrics = m
@@ -134,7 +134,7 @@ func TestProcessRecoveryKafkaError(t *testing.T) {
 	// set up activePartitionMap and corresponding entries in RecoveryTracker
 	rc.activePartitionMap = make(map[int32]partitionRecoveryState)
 	partition0 := kafka.TopicPartition{
-		Topic:     &rc.topic,
+		Topic:     &rc.topics[0],
 		Partition: 0,
 		Offset:    kafka.Offset(0),
 	}
@@ -153,7 +153,7 @@ func TestProcessRecoveryKafkaError(t *testing.T) {
 	})
 
 	partition1 := kafka.TopicPartition{
-		Topic:     &rc.topic,
+		Topic:     &rc.topics[0],
 		Partition: 1,
 		Offset:    kafka.Offset(0),
 	}
@@ -188,8 +188,8 @@ func TestProcessRecoveryKafkaError(t *testing.T) {
 		return msg.MessageType == messageTypeRecoveryRequest &&
 			msg.Key == "1"
 	}
-	mockConsumer.On("QueryWatermarkOffsets", rc.topic, int32(0), 10000).Return(int64(0), int64(100000), nil)
-	mockConsumer.On("QueryWatermarkOffsets", rc.topic, int32(1), 10000).Return(int64(3675), int64(100000), nil) // low watermark is within the recovery To-From range
+	mockConsumer.On("QueryWatermarkOffsets", rc.topics[0], int32(0), 10000).Return(int64(0), int64(100000), nil)
+	mockConsumer.On("QueryWatermarkOffsets", rc.topics[0], int32(1), 10000).Return(int64(3675), int64(100000), nil) // low watermark is within the recovery To-From range
 	mockContext.On("SendMessage", mock.MatchedBy(expectedMsgMatcher1)).Return(nil)
 	rc.processError(kafka.ErrInvalidMsg)
 	assert.Equal(t, int64(0), rc.tracker.recoveryRequests[0].Requests[0].FromOffset)
@@ -207,8 +207,8 @@ func TestProcessRecoveryKafkaError(t *testing.T) {
 		return msg.MessageType == messageTypeRecoveryRequest &&
 			msg.Key == "0"
 	}
-	mockConsumer.On("QueryWatermarkOffsets", rc.topic, int32(0), 10000).Return(int64(27000), int64(100000), nil) // low watermark is higher than the recovery ToOffset
-	mockConsumer.On("QueryWatermarkOffsets", rc.topic, int32(1), 10000).Return(int64(0), int64(100000), nil)
+	mockConsumer.On("QueryWatermarkOffsets", rc.topics[0], int32(0), 10000).Return(int64(27000), int64(100000), nil) // low watermark is higher than the recovery ToOffset
+	mockConsumer.On("QueryWatermarkOffsets", rc.topics[0], int32(1), 10000).Return(int64(0), int64(100000), nil)
 	mockContext.On("SendMessage", mock.MatchedBy(expectedCmdMatcher2)).Return(nil)
 	rc.processError(kafka.ErrOffsetOutOfRange)
 	assert.Equal(t, 0, len(rc.tracker.recoveryRequests[0].Requests))

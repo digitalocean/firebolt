@@ -152,58 +152,58 @@ func TestCalculateOffsets(t *testing.T) {
 	kc.maxInitialPartitionLag = 5
 	mockConsumer := &kafkainterface.MockMessageConsumer{}
 	kc.consumer = mockConsumer
-	kc.topic = "unit-test"
+	kc.topics = []string{"unit-test"}
 
 	assigned := make([]kafka.TopicPartition, 4)
 	assigned[0] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 0,
 		Offset:    kafka.Offset(0),
 	}
 	assigned[1] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 1,
 		Offset:    kafka.Offset(0),
 	}
 	assigned[2] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 2,
 		Offset:    kafka.Offset(0),
 	}
 	assigned[3] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 3,
 		Offset:    kafka.Offset(0),
 	}
 
 	committed := make([]kafka.TopicPartition, 4)
 	committed[0] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 0,
 		Offset:    kafka.Offset(3),
 	}
 	committed[1] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 1,
 		Offset:    kafka.Offset(5),
 	}
 	committed[2] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 2,
 		Offset:    kafka.Offset(7),
 	}
 	committed[3] = kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 2,
 		Offset:    kafka.Offset(-1000),
 	}
 
 	// mock invocations
 	mockConsumer.On("Committed", assigned, 10000).Return(committed, nil)
-	mockConsumer.On("QueryWatermarkOffsets", kc.topic, int32(0), 10000).Return(int64(0), int64(10), nil)
-	mockConsumer.On("QueryWatermarkOffsets", kc.topic, int32(1), 10000).Return(int64(0), int64(10), nil)
-	mockConsumer.On("QueryWatermarkOffsets", kc.topic, int32(2), 10000).Return(int64(0), int64(10), nil)
-	mockConsumer.On("QueryWatermarkOffsets", kc.topic, int32(3), 10000).Return(int64(0), int64(3), nil)
+	mockConsumer.On("QueryWatermarkOffsets", kc.topics[0], int32(0), 10000).Return(int64(0), int64(10), nil)
+	mockConsumer.On("QueryWatermarkOffsets", kc.topics[0], int32(1), 10000).Return(int64(0), int64(10), nil)
+	mockConsumer.On("QueryWatermarkOffsets", kc.topics[0], int32(2), 10000).Return(int64(0), int64(10), nil)
+	mockConsumer.On("QueryWatermarkOffsets", kc.topics[0], int32(3), 10000).Return(int64(0), int64(3), nil)
 
 	resultOffsets, err := kc.calculateAssignmentOffsets(assigned)
 	assert.Nil(t, err)
@@ -222,7 +222,7 @@ func TestProcessEvent(t *testing.T) {
 	kc.maxInitialPartitionLag = 5
 	mockConsumer := &kafkainterface.MockMessageConsumer{}
 	kc.consumer = mockConsumer
-	kc.topic = "unit-test"
+	kc.topics = []string{"unit-test"}
 
 	ch := make(chan firebolt.Event, 100) // it's not buffered at real runtime, but this makes assertions easier in the test
 	config := createValidConfig()
@@ -249,11 +249,11 @@ func TestProcessEventPartitionAssignment(t *testing.T) {
 	kc.maxInitialPartitionLag = 5
 	mockConsumer := &kafkainterface.MockMessageConsumer{}
 	kc.consumer = mockConsumer
-	kc.topic = "unit-test"
+	kc.topics = []string{"unit-test"}
 
 	// partition assignment
 	partition := kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 0,
 	}
 	partitions := []kafka.TopicPartition{partition}
@@ -262,12 +262,12 @@ func TestProcessEventPartitionAssignment(t *testing.T) {
 	}
 	// mocks for calculateAssignmentOffsets
 	committed := kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 0,
 		Offset:    kafka.Offset(3),
 	}
 	mockConsumer.On("Committed", partitions, 10000).Return([]kafka.TopicPartition{committed}, nil)
-	mockConsumer.On("QueryWatermarkOffsets", kc.topic, int32(0), 10000).Return(int64(0), int64(10), nil)
+	mockConsumer.On("QueryWatermarkOffsets", kc.topics[0], int32(0), 10000).Return(int64(0), int64(10), nil)
 	expectedPartitionsWithOffsets, err := kc.calculateAssignmentOffsets(partitions)
 	assert.Nil(t, err)
 	// mocks for processEvent
@@ -285,15 +285,15 @@ func TestPartitionAssignmentRevocationAndRetry(t *testing.T) {
 	kc.assignPartitionsCtx, kc.assignPartitionsCancel = context.WithCancel(context.Background())
 	mockConsumer := &kafkainterface.MockMessageConsumer{} // replace the real consumer with a mock
 	kc.consumer = mockConsumer
-	kc.topic = "unit-test"
+	kc.topics = []string{"unit-test"}
 
 	// first we try to assign partitions but fail due to a kafka broker error fetching partition metadata
 	partition1 := kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 0,
 	}
 	partition2 := kafka.TopicPartition{
-		Topic:     &kc.topic,
+		Topic:     &kc.topics[0],
 		Partition: 1,
 	}
 	partitions := []kafka.TopicPartition{partition1, partition2}
