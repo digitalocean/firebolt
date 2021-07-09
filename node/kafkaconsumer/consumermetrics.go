@@ -2,9 +2,8 @@ package kafkaconsumer
 
 import (
 	"encoding/json"
-	"fmt"
-
 	"errors"
+	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -119,15 +118,17 @@ func (m *Metrics) RegisterConsumerMetrics() {
 
 // UpdateConsumerMetrics takes the JSON stats reported by the librdkafka consumer and parses it then updates the prometheus
 // gauges.
-func (m *Metrics) UpdateConsumerMetrics(statsJSON string, topic string) {
-	partitionsStats := m.extractPartitionStats(statsJSON, topic)
+func (m *Metrics) UpdateConsumerMetrics(statsJSON string, topics []string) {
+	for _, topic := range topics {
+		partitionsStats := m.extractPartitionStats(statsJSON, topic)
 
-	for _, partitionStats := range partitionsStats {
-		partitionStr := fmt.Sprintf("%.0f", partitionStats.id)
-		m.StoredOffset.WithLabelValues(partitionStr).Set(partitionStats.storedOffset)
-		m.LowWatermark.WithLabelValues(partitionStr).Set(partitionStats.lowWatermark)
-		m.HighWatermark.WithLabelValues(partitionStr).Set(partitionStats.highWatermark)
-		m.ConsumerLag.WithLabelValues(partitionStr).Set(partitionStats.consumerLag)
+		for _, partitionStats := range partitionsStats {
+			partitionStr := fmt.Sprintf("%.0f", partitionStats.id)
+			m.StoredOffset.WithLabelValues(partitionStr).Set(partitionStats.storedOffset)
+			m.LowWatermark.WithLabelValues(partitionStr).Set(partitionStats.lowWatermark)
+			m.HighWatermark.WithLabelValues(partitionStr).Set(partitionStats.highWatermark)
+			m.ConsumerLag.WithLabelValues(partitionStr).Set(partitionStats.consumerLag)
+		}
 	}
 }
 

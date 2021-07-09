@@ -7,6 +7,7 @@ import "github.com/confluentinc/confluent-kafka-go/kafka"
 //      mockery -name MessageConsumer -inpkg .
 type MessageConsumer interface {
 	Subscribe(string, kafka.RebalanceCb) error
+	SubscribeTopics([]string,  kafka.RebalanceCb) error
 	Events() chan kafka.Event
 	Assign(partitions []kafka.TopicPartition) error
 	Unassign() (err error)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -29,7 +30,7 @@ const (
 type KafkaConsumer struct {
 	fbcontext.ContextAware
 	consumer                kafkainterface.MessageConsumer
-	topic                   string
+	topics                  []string
 	sendCh                  chan firebolt.Event
 	doneCh                  chan struct{}
 	assignPartitionsMutex   sync.Mutex
@@ -76,7 +77,7 @@ func (k *KafkaConsumer) Setup(config map[string]string, eventchan chan firebolt.
 		return err
 	}
 	k.consumer = c
-	k.topic = config["topic"]
+	k.topics = strings.Split(config["topic"], ",")
 	k.sendCh = eventchan
 	k.doneCh = make(chan struct{}, 1)
 	k.assignPartitionsMutex = sync.Mutex{}
@@ -88,7 +89,7 @@ func (k *KafkaConsumer) Setup(config map[string]string, eventchan chan firebolt.
 
 	// create the recoveryConsumer
 	if k.recoveryConsumerEnabled {
-		k.recoveryConsumer, err = NewRecoveryConsumer(k.topic, k.sendCh, config, k.metrics, k.Ctx)
+		k.recoveryConsumer, err = NewRecoveryConsumer(k.topics, k.sendCh, config, k.metrics, k.Ctx)
 		if err != nil {
 			log.WithError(err).Error("failed to create recovery consumer")
 			return err
@@ -184,7 +185,7 @@ func (k *KafkaConsumer) checkConfig(config map[string]string) error {
 // Start subscribes the Kafka consumer client to the configured topic and starts reading records from the consumer's
 // channel
 func (k *KafkaConsumer) Start() error {
-	err := k.consumer.Subscribe(k.topic, nil)
+	err := k.consumer.SubscribeTopics(k.topics, nil)
 	if err != nil {
 		return err
 	}
@@ -229,7 +230,7 @@ func (k *KafkaConsumer) processEvent(ev kafka.Event) {
 		log.WithField("kafka_event", e).Error("kafkaconsumer: consumer error")
 	case *kafka.Stats:
 		log.WithField("node_id", k.ID).WithField("kafka_consumer_stats", e.String()).Debug("kafkaconsumer: librdkafka consumer stats")
-		k.metrics.UpdateConsumerMetrics(e.String(), k.topic)
+		k.metrics.UpdateConsumerMetrics(e.String(), k.topics)
 	}
 }
 
@@ -353,7 +354,7 @@ func (k *KafkaConsumer) calculateAssignmentOffsets(assignedPartitions []kafka.To
 		}
 
 		// find the low/high total offset range available on the broker for this partition
-		low, high, err := k.consumer.QueryWatermarkOffsets(k.topic, tp.Partition, 10000)
+		low, high, err := k.consumer.QueryWatermarkOffsets(*tp.Topic, tp.Partition, 10000)
 		if err != nil { // one error that can happen here is 'Local: Operation in progress', seen during a brief kafka outage, see OB-1239
 			log.WithError(err).Error("kafkaconsumer: failed to query watermark offsets")
 			return nil, err

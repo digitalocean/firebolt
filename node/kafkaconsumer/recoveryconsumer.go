@@ -62,7 +62,7 @@ const refreshPeriodMs = 10000 // how often we check recoverytracker for new reco
 //
 type RecoveryConsumer struct {
 	consumer                kafkainterface.MessageConsumer
-	topic                   string
+	topics                  []string
 	sendCh                  chan firebolt.Event
 	doneCh                  chan struct{}
 	tracker                 *RecoveryTracker
@@ -85,7 +85,7 @@ type partitionRecoveryState struct {
 }
 
 // NewRecoveryConsumer creates a RecoveryConsumer
-func NewRecoveryConsumer(topic string, sendCh chan firebolt.Event, config map[string]string, metrics *Metrics, ctx fbcontext.FBContext) (*RecoveryConsumer, error) {
+func NewRecoveryConsumer(topics []string, sendCh chan firebolt.Event, config map[string]string, metrics *Metrics, ctx fbcontext.FBContext) (*RecoveryConsumer, error) {
 
 	maxRecordsToRecover, err := strconv.Atoi(config["parallelrecoverymaxrecords"])
 	if err != nil {
@@ -98,7 +98,7 @@ func NewRecoveryConsumer(topic string, sendCh chan firebolt.Event, config map[st
 	}
 
 	r := &RecoveryConsumer{
-		topic:               topic,
+		topics:               topics,
 		sendCh:              sendCh,
 		doneCh:              make(chan struct{}),
 		assignedPartitions:  []kafka.TopicPartition{},
@@ -219,7 +219,7 @@ func (rc *RecoveryConsumer) processError(e kafka.ErrorCode) {
 			// check watermarks for each partition we _were_ recovering and reset the from offset to the low watermark if needed
 			log.WithField("active_partition_count", len(activePartitions)).Info("recoveryconsumer: checking partitions after invalid message error")
 			for _, partition := range activePartitions {
-				low, _, err := rc.consumer.QueryWatermarkOffsets(rc.topic, partition.partition.Partition, 10000)
+				low, _, err := rc.consumer.QueryWatermarkOffsets(*partition.partition.Topic, partition.partition.Partition, 10000)
 				if err != nil {
 					log.WithError(err).Error("recoveryconsumer: failed to query watermark offsets")
 					return
