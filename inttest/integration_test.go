@@ -205,7 +205,7 @@ func TestRecovery(t *testing.T) {
 	go errorConsumer.Shutdown()
 	close(errCh)
 
-	fmt.Printf("inttest: recovery founc %d successful, %d errors, %d filtered", len(successCh), len(errCh), len(internal.FilteredEvents))
+	fmt.Printf("inttest: recovery found %d successful, %d errors, %d filtered", len(successCh), len(errCh), len(internal.FilteredEvents))
 	totalEvents := len(successCh) + len(errCh) + len(internal.FilteredEvents)
 	assert.Equal(t, 2400, totalEvents)
 }
@@ -216,6 +216,7 @@ func produceTestData(count int) {
 	config := make(map[string]string)
 	config["brokers"] = "localhost:9092"
 	config["topic"] = testTopic
+	config["librdkafka.sticky.partitioning.linger.ms"] = "0" // sticky partitioning can cause most/all events to go to partition 0, but our tests rely on near-even distribution
 	err := kp.Setup(config)
 	if err != nil {
 		log.WithError(err).Info("failed to setup producer")

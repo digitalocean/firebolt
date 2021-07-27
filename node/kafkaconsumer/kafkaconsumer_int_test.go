@@ -24,12 +24,14 @@ func TestKafkaConsumer(t *testing.T) {
 	// using a unique (by time) topic name makes it easier to run this test repeatedly in local testing without interference
 	// from the data left over by previous runs
 	topicName := fmt.Sprintf("kafkaconsumer-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(topicName, 4)
 
 	// create a producer for test data
 	kp := &kafkaproducer.KafkaProducer{}
 	producerConfig := make(map[string]string)
 	producerConfig["brokers"] = "localhost:9092"
 	producerConfig["topic"] = topicName
+	producerConfig["librdkafka.sticky.partitioning.linger.ms"] = "0" // sticky partitioning can cause most/all events to go to partition 0, but our tests rely on near-even distribution
 	err := kp.Setup(producerConfig)
 	assert.Nil(t, err)
 
@@ -44,8 +46,8 @@ func TestKafkaConsumer(t *testing.T) {
 		})
 	}
 
-	// sleep to give kafka time to autocreate the topic and have a leader for it's partition
-	time.Sleep(10 * time.Second)
+	// sleep so that when the kafka consumer queries partition offsets, the 1000 messages are all accounted for
+	time.Sleep(5 * time.Second)
 
 	// start the kafka consumer with 'maxpartitionlag' 60
 	kc := &KafkaConsumer{}
