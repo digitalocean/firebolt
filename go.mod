@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/Comcast/go-leaderelection v0.0.0-20181102191523-272fd9e2bddc
 	github.com/Shopify/sarama v1.27.2
-	github.com/confluentinc/confluent-kafka-go v1.5.2
+	github.com/confluentinc/confluent-kafka-go v1.7.0
 	github.com/digitalocean/captainslog v0.0.0-20190610170928-cd175de8a6e2
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/olivere/elastic/v7 v7.0.15
