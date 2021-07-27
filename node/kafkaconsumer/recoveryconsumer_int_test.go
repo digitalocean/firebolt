@@ -313,6 +313,7 @@ func produceTestRecords(topicName string, numRecords int, t *testing.T) {
 	producerConfig := make(map[string]string)
 	producerConfig["brokers"] = "localhost:9092"
 	producerConfig["topic"] = topicName
+	producerConfig["librdkafka.sticky.partitioning.linger.ms"] = "0" // sticky partitioning can cause most/all events to go to partition 0, but our tests rely on near-even distribution
 	err := kp.Setup(producerConfig)
 	assert.Nil(t, err)
 	for i := 0; i < numRecords; i++ {

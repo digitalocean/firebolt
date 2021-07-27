@@ -47,9 +47,11 @@ func EnsureTestTopicExists(topicName string, partitions int32) error {
 		_, ok := topicMap[topicName]
 		if ok {
 			// topic exists!
+			log.Info("topic created successfully")
 			return nil
 		}
 
 		time.Sleep(200 * time.Millisecond)
 	}
+
 }
