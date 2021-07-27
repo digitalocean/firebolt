@@ -24,6 +24,7 @@ func TestKafkaConsumer(t *testing.T) {
 	// using a unique (by time) topic name makes it easier to run this test repeatedly in local testing without interference
 	// from the data left over by previous runs
 	topicName := fmt.Sprintf("kafkaconsumer-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(topicName, 4)
 
 	// create a producer for test data
 	kp := &kafkaproducer.KafkaProducer{}

@@ -103,7 +103,7 @@ func TestRecoveryConsumerEndToEnd(t *testing.T) {
 	metrics.Init("recoveryconsumer")
 
 	topicName := fmt.Sprintf("recoveryconsumer-endtoend-%d", time.Now().UnixNano())
-	println("recoveryconsumer endtoend assignment integration test using topic " + topicName)
+	testutil.EnsureTestTopicExists(topicName, 4)
 
 	// first we will produce 2000 records to create a recovery state where the kafkaconsumer is 'behind'
 	// the kafkaconsumer is set up with 'maxpartitionlag' 60 * 4 partitions, so 240 records will be consumed immediately in "real time" by the main consumer
@@ -141,6 +141,7 @@ func TestRecoveryConsumerRateLimited(t *testing.T) {
 	metrics.Init("recoveryconsumer")
 
 	topicName := fmt.Sprintf("recoveryconsumer-ratelimit-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(topicName, 4)
 
 	produceTestRecords(topicName, 1000, t)
 
@@ -174,7 +175,9 @@ func TestRecoveryConsumerRestart(t *testing.T) {
 	metrics.Init("recoveryconsumer")
 
 	eventTopicName := fmt.Sprintf("recoveryconsumer-restart-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(eventTopicName, 4)
 	messageTopicName := fmt.Sprintf("recoveryconsumer-messages-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(messageTopicName, 1)
 	println("recoveryconsumer endtoend assignment integration test using event topic " + eventTopicName)
 
 	// first we will produce 2000 records to create a recovery state where the kafkaconsumer is 'behind'
@@ -220,7 +223,7 @@ func TestRecoveryConsumerRestart(t *testing.T) {
 	// give the recoveryconsumer some time to do its thing
 	_ = testutil.AwaitCondition(func() bool {
 		return (previouslyRecovered + len(kc2.sendCh)) >= 8240
-	}, 1*time.Second, 60*time.Second)
+	}, 1*time.Second, 90*time.Second)
 	assert.True(t, 8240 <= previouslyRecovered+len(kc2.sendCh), "expected the number of records recovered to be > 8240 but it was %d", previouslyRecovered+len(kc2.sendCh)) // (60 * 4) from kafkaconsumer + (2000 * 4) from recoveryconsumer
 
 	err = kc2.Shutdown()
@@ -232,8 +235,9 @@ func TestRecoveryCancellation(t *testing.T) {
 	metrics.Init("recoveryconsumer")
 
 	eventTopicName := fmt.Sprintf("recoveryconsumer-restart-%d", time.Now().UnixNano())
+	testutil.EnsureTestTopicExists(eventTopicName, 4)
 	messageTopicName := fmt.Sprintf("recoveryconsumer-messages-%d", time.Now().UnixNano())
-	println("recoveryconsumer recovery cancellation integration test using event topic " + eventTopicName)
+	testutil.EnsureTestTopicExists(messageTopicName, 1)
 
 	// first we will produce 10000 records to create a recovery state where the kafkaconsumer is 'behind'
 	// the kafkaconsumer is set up with 'maxpartitionlag' 60 * 4 partitions, so 240 records will be consumed immediately in "real time" by the main consumer
@@ -243,7 +247,7 @@ func TestRecoveryCancellation(t *testing.T) {
 
 	// sleep to give kafka time to autocreate the topic and have a leader for it's partition, also without this sometimes
 	// it's too fast and kafka returns 0 for highwatermark, which results in a false-failed test
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	kc, err := startKafkaConsumerWithRealContext(eventTopicName, messageTopicName, 500, 2000, t)
 	assert.Nil(t, err)
