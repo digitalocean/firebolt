@@ -19,6 +19,7 @@ type Metrics struct {
 	LowWatermark       *prometheus.GaugeVec
 	HighWatermark      *prometheus.GaugeVec
 	ConsumerLag        *prometheus.GaugeVec
+	ConsumerLagStored  *prometheus.GaugeVec
 	RecoveryEvents     *prometheus.CounterVec
 	RecoveryRemaining  *prometheus.GaugeVec
 	RecoveryPartitions prometheus.Gauge
@@ -26,12 +27,14 @@ type Metrics struct {
 
 // PartitionStats is a struct for holding the statistics emitted by the librdkafka consumer that underlies confluent-kafka-go
 // after they are parsed from their original JSON
+// https://github.com/edenhill/librdkafka/blob/master/STATISTICS.md#partitions
 type PartitionStats struct {
-	id            float64
-	storedOffset  float64
-	lowWatermark  float64
-	highWatermark float64
-	consumerLag   float64
+	id                float64
+	storedOffset      float64
+	lowWatermark      float64
+	highWatermark     float64
+	consumerLag       float64
+	consumerLagStored float64
 }
 
 // RegisterConsumerMetrics initializes gauges for tracking consumer state and registers them with the prometheus client
@@ -76,7 +79,16 @@ func (m *Metrics) RegisterConsumerMetrics() {
 		prometheus.GaugeOpts{
 			Namespace: metrics.Get().AppMetricsPrefix,
 			Name:      "consumer_offset_lag",
-			Help:      "Approximate consume lag (number of events behind the high watermark) for this partition",
+			Help:      "Approximate consume lag from the committed_offset (number of events behind the high watermark) for this partition",
+		},
+		[]string{"partition_id"},
+	)
+
+	m.ConsumerLagStored = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: metrics.Get().AppMetricsPrefix,
+			Name:      "consumer_offset_lag_stored",
+			Help:      "Approximate consume lag from the stored_offset (offset to be committed) (number of events behind the high watermark) for this partition",
 		},
 		[]string{"partition_id"},
 	)
@@ -112,6 +124,7 @@ func (m *Metrics) RegisterConsumerMetrics() {
 	_ = prometheus.Register(m.LowWatermark)
 	_ = prometheus.Register(m.HighWatermark)
 	_ = prometheus.Register(m.ConsumerLag)
+	_ = prometheus.Register(m.ConsumerLagStored)
 	_ = prometheus.Register(m.RecoveryEvents)
 	_ = prometheus.Register(m.RecoveryRemaining)
 	_ = prometheus.Register(m.RecoveryPartitions)
@@ -128,6 +141,7 @@ func (m *Metrics) UpdateConsumerMetrics(statsJSON string, topic string) {
 		m.LowWatermark.WithLabelValues(partitionStr).Set(partitionStats.lowWatermark)
 		m.HighWatermark.WithLabelValues(partitionStr).Set(partitionStats.highWatermark)
 		m.ConsumerLag.WithLabelValues(partitionStr).Set(partitionStats.consumerLag)
+		m.ConsumerLagStored.WithLabelValues(partitionStr).Set(partitionStats.consumerLagStored)
 	}
 }
 
@@ -204,16 +218,17 @@ func (m *Metrics) buildUnassignedPartitionStats(partitionID float64) PartitionSt
 	// here to fix that.   Because librdkafka reports -1001 in some cases for unassigned values, we've had to use
 	// a condition to filter out negative values anyway, so this won't harm any of our dashboards or alerts.
 	return PartitionStats{
-		id:            partitionID,
-		storedOffset:  -1,
-		lowWatermark:  -1,
-		highWatermark: -1,
-		consumerLag:   -1,
+		id:                partitionID,
+		storedOffset:      -1,
+		lowWatermark:      -1,
+		highWatermark:     -1,
+		consumerLag:       -1,
+		consumerLagStored: -1,
 	}
 }
 
 func buildPartitionStats(partitionMap map[string]interface{}) (*PartitionStats, error) {
-	var id, storedOffset, lowWatermark, highWatermark, consumerLag float64
+	var id, storedOffset, lowWatermark, highWatermark, consumerLag, consumerLagStored float64
 	if partitionMap["partition"] != nil {
 		id = partitionMap["partition"].(float64)
 	} else {
@@ -239,13 +254,19 @@ func buildPartitionStats(partitionMap map[string]interface{}) (*PartitionStats, 
 	} else {
 		return nil, errors.New("failed to parse consumer stats json: missing 'consumer_lag' field")
 	}
+	if partitionMap["consumer_lag_stored"] != nil {
+		consumerLagStored = partitionMap["consumer_lag_stored"].(float64)
+	} else {
+		return nil, errors.New("failed to parse consumer stats json: missing 'consumer_lag_stored' field")
+	}
 
 	partitionStats := &PartitionStats{
-		id:            id,
-		storedOffset:  storedOffset,
-		lowWatermark:  lowWatermark,
-		highWatermark: highWatermark,
-		consumerLag:   consumerLag,
+		id:                id,
+		storedOffset:      storedOffset,
+		lowWatermark:      lowWatermark,
+		highWatermark:     highWatermark,
+		consumerLag:       consumerLag,
+		consumerLagStored: consumerLagStored,
 	}
 
 	return partitionStats, nil
