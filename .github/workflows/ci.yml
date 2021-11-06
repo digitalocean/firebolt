@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup
+      run: |
+        sudo apt-get install -y curl wget software-properties-common apt-transport-https ca-certificates gnupg2
+        sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
+        sudo wget -qO - https://packages.confluent.io/deb/5.4/archive.key | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.4 stable main"
+        sudo apt-get update
+        sudo apt-get install -y librdkafka1 librdkafka-dev
+    - name: Build
+      run: |
+        gofmt -w -s . && git diff --exit-code
+        make cover
