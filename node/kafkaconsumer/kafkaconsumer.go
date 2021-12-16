@@ -9,11 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/digitalocean/firebolt"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/digitalocean/firebolt"
 	"github.com/digitalocean/firebolt/fbcontext"
 	kafkainterface "github.com/digitalocean/firebolt/kafka"
 	"github.com/digitalocean/firebolt/metrics"
