@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.12.1 // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	gopkg.in/yaml.v2 v2.4.0
 )
