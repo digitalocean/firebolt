@@ -1,4 +1,4 @@
-# firebolt ![Code Coverage Badge by Gopherbadger](coverage_badge.png)  [![Build Status](https://travis-ci.org/digitalocean/firebolt.svg?branch=master)](https://travis-ci.org/digitalocean/firebolt)  [![Go Report Card](https://goreportcard.com/badge/digitalocean/firebolt)](https://goreportcard.com/report/digitalocean/firebolt)
+# firebolt ![Code Coverage Badge by Gopherbadger](coverage_badge.png)  ![Build Status](https://github.com/digitalocean/firebolt/actions/workflows/ci.yml/badge.svg) [![Go Report Card](https://goreportcard.com/badge/digitalocean/firebolt)](https://goreportcard.com/report/digitalocean/firebolt)
 ![firebolt logo](docs/firebolt-xs.png)
 
 A golang framework for streaming event processing & data pipeline apps
