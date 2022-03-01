@@ -126,13 +126,9 @@ func (c *ElasticIndexClient) batch(ctx context.Context) {
 }
 
 func (c *ElasticIndexClient) retryBulkIndex(messages []*eventIndexRequest, retryCount int) {
-	c.metrics.AvailableBatchRoutines.Set(float64(len(c.pool)))
-	<-c.pool
 
 	// make the bulk index calls to ES on a goroutine so that the caller can continue with the next batch
 	go func() {
-		defer func() { c.pool <- 1 }()
-
 		// when the whole batch fails, it typically indicates that ES is unavailable, so we keep retrying forever
 		// and once all the pool workers are in use backpressure will flow up to the nodes above this one
 		for i := 0; ; i++ {
@@ -155,6 +151,10 @@ func (c *ElasticIndexClient) retryBulkIndex(messages []*eventIndexRequest, retry
 }
 
 func (c *ElasticIndexClient) doBulkIndex(requests []*eventIndexRequest, retryCount int) error {
+	c.metrics.AvailableBatchRoutines.Set(float64(len(c.pool)))
+	<-c.pool
+	defer func() { c.pool <- 1 }()
+
 	// nothing to do
 	if len(requests) == 0 {
 		return nil
