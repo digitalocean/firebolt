@@ -220,6 +220,7 @@ func (rt *RecoveryTracker) sendRecoveryRequests(partitionID int32, requests *Rec
 	return rt.ctx.SendMessage(msg)
 }
 
+//nolint: gosec
 func (rt *RecoveryTracker) receiveRequest(partitionIDStr string, requestBytes []byte) {
 	rt.requestLock.Lock()
 	defer rt.requestLock.Unlock()

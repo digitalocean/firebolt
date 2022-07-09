@@ -51,6 +51,7 @@ var seeded = false
 var randAlphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 // RandString creates and returns a pseudorandom string from randAlphabet of length n.
+//nolint: gosec
 func RandString(n int) string {
 	if !seeded {
 		rand.Seed(time.Now().UTC().UnixNano())

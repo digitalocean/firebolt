@@ -37,8 +37,8 @@ cover: inttest .makecache/cover
 	@mkdir $@
 
 .makecache/lint: $(FIREBOLT_SRCS)
-	@go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.18.0
-	@golangci-lint run --no-config --disable-all -E gosec -E interfacer -E vet -E deadcode -E gocyclo -E golint -E varcheck -E dupl -E ineffassign -E unconvert -E nakedret -E gofmt -E unparam -E prealloc ./...
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOBIN) v1.46.2
+	@golangci-lint run --no-config --disable-all -E gosec -E vet -E deadcode -E gocyclo -E revive -E varcheck -E dupl -E ineffassign -E unconvert -E nakedret -E gofmt -E unparam -E prealloc ./...
 
 # Unit Tests only
 .makecache/test: $(FIREBOLT_SRCS)
