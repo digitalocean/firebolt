@@ -39,7 +39,7 @@ type AsyncNode interface {
 // TODO: add a future work ticket to have a timeout for async nodes, enforced by firebolt, configured in firebolt.yaml,
 //  that kills the goroutine and replaces it with a new worker in the pool, with metrics
 
-//Config is the set of configuration values used to initialize the Context for a Node
+// Config is the set of configuration values used to initialize the Context for a Node
 type Config struct {
 	ID                  string            `yaml:"id"`
 	Name                string            `yaml:"name"`

@@ -59,6 +59,7 @@ func RandString(n int) string {
 
 	b := make([]rune, n)
 	for i := range b {
+		// nolint:gosec
 		b[i] = randAlphabet[rand.Intn(len(randAlphabet))]
 	}
 	return string(b)
