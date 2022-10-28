@@ -2,9 +2,11 @@ package message
 
 import (
 	"encoding/json"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/digitalocean/firebolt/metrics"
 	"github.com/digitalocean/firebolt/testutil"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -197,6 +199,9 @@ func (r *KafkaMessageReceiver) processMessage(value []byte) {
 		log.WithError(err).Error("kafkamessagereceiver: failed to unmarshal wire message")
 		return
 	}
+
+	metrics.Message().MessagesReceived.WithLabelValues("kafka", wireMsg.Message.MessageType, strconv.FormatBool(wireMsg.Acknowledged)).Inc()
+	metrics.Message().MessagesReceivedBytes.WithLabelValues("kafka", wireMsg.Message.MessageType, strconv.FormatBool(wireMsg.Acknowledged)).Add(float64(len(value)))
 
 	if !r.initialized {
 		r.initBuffer[uniqueKey(wireMsg.Message)] = wireMsg
