@@ -37,7 +37,7 @@ cover: inttest .makecache/cover
 	@mkdir $@
 
 .makecache/lint: $(FIREBOLT_SRCS)
-	@go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 	@golangci-lint run --no-config --disable-all -E gosec -E vet -E unused -E gocyclo -E revive -E dupl -E ineffassign -E unconvert -E nakedret -E gofmt -E unparam -E prealloc ./...
 
 # Unit Tests only
