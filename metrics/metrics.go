@@ -192,7 +192,7 @@ func (m *Metrics) registerMessageMetrics() {
 				Name:      "messages_sent_total",
 				Help:      "The total number of messages sent for each message type",
 			},
-			[]string{"transport", "messagetype", "ack"},
+			[]string{"transport", "message_type", "ack"},
 		),
 		MessagesReceived: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -200,7 +200,7 @@ func (m *Metrics) registerMessageMetrics() {
 				Name:      "messages_received_total",
 				Help:      "The total number of messages received for each message type",
 			},
-			[]string{"transport", "messagetype", "ack"},
+			[]string{"transport", "message_type", "ack"},
 		),
 		MessagesSentBytes: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -208,7 +208,7 @@ func (m *Metrics) registerMessageMetrics() {
 				Name:      "messages_sent_bytes_total",
 				Help:      "The total bytes of messages sent for each message type",
 			},
-			[]string{"transport", "messagetype", "ack"},
+			[]string{"transport", "message_type", "ack"},
 		),
 		MessagesReceivedBytes: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -216,7 +216,7 @@ func (m *Metrics) registerMessageMetrics() {
 				Name:      "messages_received_bytes_total",
 				Help:      "The total bytes of messages received for each message type",
 			},
-			[]string{"transport", "messagetype", "ack"},
+			[]string{"transport", "message_type", "ack"},
 		),
 	}
 
