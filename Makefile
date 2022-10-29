@@ -52,7 +52,7 @@ cover: inttest .makecache/cover
 	@echo ">> Running integration tests"
 	@docker-compose -f ./inttest/docker-compose.yml down -v
 	@docker-compose -f ./inttest/docker-compose.yml up -d --force-recreate
-	@go test ./... -tags=integration -coverpkg=./... -coverprofile=coverage.out
+	@go test -p 1 ./... -tags=integration -coverpkg=./... -coverprofile=coverage.out
 	@docker-compose -f ./inttest/docker-compose.yml down -v
 	@touch $@
 
