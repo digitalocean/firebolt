@@ -281,6 +281,10 @@ func (e *Executor) Shutdown() (done chan struct{}) {
 		e.messageReceiver.Shutdown()
 	}
 
+	if e.leader != nil {
+		e.leader.Shutdown()
+	}
+
 	// shutting down the source will cause a well-behaved source to return from its Start() method, and then
 	// sourceCh will be closed, which will cause Execute() to return
 

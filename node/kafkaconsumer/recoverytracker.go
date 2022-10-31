@@ -236,6 +236,8 @@ func (rt *RecoveryTracker) receiveRequest(partitionIDStr string, requestBytes []
 		return
 	}
 
+	// we know that partitionid is always int16 so there is no actual overflow risk here
+	// nolint:gosec
 	rt.recoveryRequests[int32(partitionID)] = requests
 }
 

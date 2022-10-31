@@ -28,3 +28,11 @@ All node metrics are vectors with a label `node_id` identifying the node that it
  * histogram `node_processing_time_sec` Processing time per event in seconds
  * counter `discarded_events_total` The total number of events discarded because the node's buffer was full
  * counter `buffer_full_events_total` The total number of events that caused blocking because the node's buffer was full
+
+#### Message Metrics
+Message metrics are labelled with `message_type` to allow tracking of message volumes by type, and also with `ack`
+indicating whether the message was acknowledged.
+ * counter `messages_sent_total` The total number of messages sent by this node
+ * counter `messages_received_total` The total number of messages sent by this node
+ * counter `messages_sent_bytes_total` The total number of bytes of messages sent by this node
+ * counter `messages_received_bytes_total` The total number of bytes of messages received by this node

@@ -42,15 +42,16 @@ const refreshPeriodMs = 10000 // how often we check recoverytracker for new reco
 // * Race conditions on consumer rebalance:
 // If one node gets partitions assigned, finds a gap between stored/highwatermark, and creates a request, then a consumer
 // rebalance follows and the same partition assigned to another instance...
-// - if that happens *before* offsets have been saved by the original assignee, a new request will be created that should match or
-//   instead have a slightly higher highwatermark (and thus toOffset), which is fine to overwrite the old recovery request
-// - if that request happens *after* offsets saved, a new request should not be created because that saved offset is within
-//   'maxpartitionlag', and the existing request is still valid
-// * Race conditions within recovery, between partition assignment to recoveryconsumer and recoveryrequest availability in
+//   - if that happens *before* offsets have been saved by the original assignee, a new request will be created that should match or
+//     instead have a slightly higher highwatermark (and thus toOffset), which is fine to overwrite the old recovery request
+//   - if that request happens *after* offsets saved, a new request should not be created because that saved offset is within
+//     'maxpartitionlag', and the existing request is still valid
+//   - Race conditions within recovery, between partition assignment to recoveryconsumer and recoveryrequest availability in
+//
 // recoverytracker:
-// - on startup if recoveryrequests already exist, partitions may be assigned in kafkaconsumer before recoverytracker has
-// 	 consumed those existing recoveryrequests, so when recoverytracker *does* consume them recoveryconsumer must update;
-//   we use a ticker in recoveryconsumer that refreshes assignments from recoverytracker periodically
+//   - on startup if recoveryrequests already exist, partitions may be assigned in kafkaconsumer before recoverytracker has
+//     consumed those existing recoveryrequests, so when recoverytracker *does* consume them recoveryconsumer must update;
+//     we use a ticker in recoveryconsumer that refreshes assignments from recoverytracker periodically
 //
 // What about a case where a recovery request is in progress for an outage, and there's a second outage?
 // Because offsets have been stored, if the second outage was short enough to not generate a new recovery request then the old
@@ -59,7 +60,6 @@ const refreshPeriodMs = 10000 // how often we check recoverytracker for new reco
 // in-progress recovery is abandoned.   This shortcoming is worth addressing in a future release - we wouldn't want multiple
 // recoveries running at the same time for a single partition, but each recovery request could be an ordered queue of requests,
 // with request offset ranges that overlap automatically merged.
-//
 type RecoveryConsumer struct {
 	consumer                kafkainterface.MessageConsumer
 	topic                   string
@@ -250,7 +250,7 @@ func (rc *RecoveryConsumer) processError(e kafka.ErrorCode) {
 	log.WithField("kafka_event", e.String()).Error("recoveryconsumer: kafka error")
 }
 
-//nolint: gocyclo
+// nolint: gocyclo
 func (rc *RecoveryConsumer) recoverSingleEvent(e *kafka.Message) {
 	var (
 		recoveryState            partitionRecoveryState

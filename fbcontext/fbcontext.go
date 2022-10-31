@@ -5,7 +5,8 @@ import "errors"
 // FBContext is a firebolt context.  It provides a source/node with access to inter-node or global operations.  Currently
 // it supports sending messages to other source/nodes (across the cluster) and acknowledging receipt of those messages.
 // After any changes, regenerate the mock with:
-//      mockery -name FBContext -inpkg .
+//
+//	mockery -name FBContext -inpkg .
 type FBContext interface {
 	ConfigureMessaging(send MessageFunc, ack MessageFunc)
 	ConfigureLeader(leader func() bool)

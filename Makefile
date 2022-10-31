@@ -37,8 +37,8 @@ cover: inttest .makecache/cover
 	@mkdir $@
 
 .makecache/lint: $(FIREBOLT_SRCS)
-	@go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.18.0
-	@golangci-lint run --no-config --disable-all -E gosec -E interfacer -E vet -E deadcode -E gocyclo -E golint -E varcheck -E dupl -E ineffassign -E unconvert -E nakedret -E gofmt -E unparam -E prealloc ./...
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
+	@golangci-lint run --no-config --disable-all -E gosec -E vet -E unused -E gocyclo -E revive -E dupl -E ineffassign -E unconvert -E nakedret -E gofmt -E unparam -E prealloc ./...
 
 # Unit Tests only
 .makecache/test: $(FIREBOLT_SRCS)
@@ -52,7 +52,7 @@ cover: inttest .makecache/cover
 	@echo ">> Running integration tests"
 	@docker-compose -f ./inttest/docker-compose.yml down -v
 	@docker-compose -f ./inttest/docker-compose.yml up -d --force-recreate
-	@go test ./... -tags=integration -coverpkg=./... -coverprofile=coverage.out
+	@go test -p 1 ./... -tags=integration -coverpkg=./... -coverprofile=coverage.out
 	@docker-compose -f ./inttest/docker-compose.yml down -v
 	@touch $@
 
@@ -60,7 +60,7 @@ cover: inttest .makecache/cover
 # Note that some non-production patterns like mocks are excluded by filtering them out of the coverage file with 'grep'
 .makecache/cover: $(FIREBOLT_SRCS)
 	@echo ">> Computing test coverage"
-	@go get -u github.com/jpoles1/gopherbadger@1f4eedb7a3f6f2897d66f0aed24a5cc272a202a6
+	@go install github.com/jpoles1/gopherbadger@1f4eedb7a3f6f2897d66f0aed24a5cc272a202a6
 	@grep -Ev '/mock_|/internal|/inttest|/examples|/testutil' coverage.out > coverage-nomocks.out
 	@gopherbadger -covercmd "go tool cover -func=coverage-nomocks.out"
 	@touch $@

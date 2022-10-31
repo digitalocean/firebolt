@@ -2,9 +2,9 @@ package metrics
 
 import (
 	"context"
-	"net/http"
-
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
@@ -22,8 +22,9 @@ func StartServer(ctx context.Context, port int) error {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", port),
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	s := &Server{

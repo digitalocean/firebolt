@@ -48,6 +48,11 @@ func (l *Leader) IsLeader() bool {
 	return l.leader
 }
 
+// Shutdown cleanly resigns this node from leader election
+func (l *Leader) Shutdown() {
+	l.stopElection()
+}
+
 // startElection continuously starts and monitors elections
 func (l *Leader) startElection() {
 	for !l.stopped {

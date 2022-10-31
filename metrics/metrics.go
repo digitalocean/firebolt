@@ -12,6 +12,7 @@ type Metrics struct {
 	AppMetricsPrefix string
 	sourceMetrics    SourceMetrics
 	nodeMetrics      NodeMetrics
+	messageMetrics   MessageMetrics
 }
 
 // SourceMetrics encapsulates the prometheus collectors used by firebolt to record metrics about the source
@@ -31,6 +32,14 @@ type NodeMetrics struct {
 	BufferFullEvents *prometheus.CounterVec
 }
 
+// MessageMetrics encapsulates the prometheus collectos used to record metrics about messages sent and received
+type MessageMetrics struct {
+	MessagesSent          *prometheus.CounterVec
+	MessagesReceived      *prometheus.CounterVec
+	MessagesSentBytes     *prometheus.CounterVec
+	MessagesReceivedBytes *prometheus.CounterVec
+}
+
 var singleton *Metrics
 var once sync.Once
 
@@ -43,6 +52,7 @@ func Init(appMetricsPrefix string) {
 
 		singleton.registerSourceMetrics()
 		singleton.registerNodeMetrics()
+		singleton.registerMessageMetrics()
 	})
 }
 
@@ -69,6 +79,14 @@ func Node() NodeMetrics {
 		panic("illegal attempt to access metrics before initialization, be sure to call Init()")
 	}
 	return singleton.nodeMetrics
+}
+
+// Message returns the MessageMetrics for this firebolt application
+func Message() MessageMetrics {
+	if singleton == nil {
+		panic("illegal attempt to access metrics before initialization, be sure to call Init()")
+	}
+	return singleton.messageMetrics
 }
 
 func (m *Metrics) registerSourceMetrics() {
@@ -164,4 +182,47 @@ func (m *Metrics) registerNodeMetrics() {
 	prometheus.Register(m.nodeMetrics.ProcessTime)
 	prometheus.Register(m.nodeMetrics.DiscardedEvents)
 	prometheus.Register(m.nodeMetrics.BufferFullEvents)
+}
+
+func (m *Metrics) registerMessageMetrics() {
+	m.messageMetrics = MessageMetrics{
+		MessagesSent: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: m.AppMetricsPrefix,
+				Name:      "messages_sent_total",
+				Help:      "The total number of messages sent for each message type",
+			},
+			[]string{"transport", "message_type", "ack"},
+		),
+		MessagesReceived: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: m.AppMetricsPrefix,
+				Name:      "messages_received_total",
+				Help:      "The total number of messages received for each message type",
+			},
+			[]string{"transport", "message_type", "ack"},
+		),
+		MessagesSentBytes: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: m.AppMetricsPrefix,
+				Name:      "messages_sent_bytes_total",
+				Help:      "The total bytes of messages sent for each message type",
+			},
+			[]string{"transport", "message_type", "ack"},
+		),
+		MessagesReceivedBytes: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: m.AppMetricsPrefix,
+				Name:      "messages_received_bytes_total",
+				Help:      "The total bytes of messages received for each message type",
+			},
+			[]string{"transport", "message_type", "ack"},
+		),
+	}
+
+	// nolint:errcheck
+	prometheus.Register(m.messageMetrics.MessagesSent)
+	prometheus.Register(m.messageMetrics.MessagesReceived)
+	prometheus.Register(m.messageMetrics.MessagesSentBytes)
+	prometheus.Register(m.messageMetrics.MessagesReceivedBytes)
 }

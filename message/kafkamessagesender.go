@@ -3,9 +3,11 @@ package message
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/digitalocean/firebolt/metrics"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/digitalocean/firebolt/config"
@@ -62,6 +64,9 @@ func (s *KafkaMessageSender) produceMessage(msg Message, ack bool) error {
 	if err != nil {
 		return fmt.Errorf("kafkamessagesender: failed to marshal wire message [%v]", err)
 	}
+
+	metrics.Message().MessagesSent.WithLabelValues("kafka", msg.MessageType, strconv.FormatBool(ack)).Inc()
+	metrics.Message().MessagesSentBytes.WithLabelValues("kafka", msg.MessageType, strconv.FormatBool(ack)).Add(float64(len(wireMsgBytes)))
 
 	kafkaMsg := &kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &s.topic, Partition: kafka.PartitionAny},
