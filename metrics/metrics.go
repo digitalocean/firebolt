@@ -222,7 +222,7 @@ func (m *Metrics) registerMessageMetrics() {
 
 	// nolint:errcheck
 	prometheus.Register(m.messageMetrics.MessagesSent)
-	prometheus.Register(m.messageMetrics.MessagesSent)
+	prometheus.Register(m.messageMetrics.MessagesReceived)
 	prometheus.Register(m.messageMetrics.MessagesSentBytes)
 	prometheus.Register(m.messageMetrics.MessagesReceivedBytes)
 }
