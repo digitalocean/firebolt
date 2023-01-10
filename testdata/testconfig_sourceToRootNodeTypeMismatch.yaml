@@ -1,5 +1,6 @@
 application: TestApp
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: kafkaconsumer
   params:

@@ -1,29 +1,21 @@
 application: TestApp
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: kafkaconsumer
-  params:
-    brokers: kafkabroker:9092
-    consumergroup: testapp
-    topic: logs-all
-    buffersize: 1000
 nodes:
   - name: firstnode
+    id: myveryfirstnode
     workers: 1
     buffersize: 100
-    params:
-      param1.1: value1.1
-      param1.2: value1.2
     children:
       - name: secondnode
+        id: myveryfirstnode
         workers: 2
         buffersize: 200
         error_handler:
           name: errorhandlernode
           buffersize: 100
-          error_handler:
-            name: handler-cannot-have-handler
-            workers: 1
         children:
           - name: thirdnode
             id: third-node-id

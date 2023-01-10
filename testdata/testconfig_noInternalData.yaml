@@ -1,6 +1,8 @@
 application: sampleapp
-metricsprefix: sample
-metricsport: 4321
+metrics:
+  enabled: true
+  prefix: sample
+  port: 4321
 source:
   name: kafkaconsumer
 nodes:

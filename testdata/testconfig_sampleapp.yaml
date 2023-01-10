@@ -1,6 +1,8 @@
 application: sampleapp
-metricsprefix: sample                   # all prometheus metrics will be prefixed with 'sample_'
-metricsport: 4321                       # an HTTP server exposing prometheus-compatible metrics will be started on this port
+metrics:
+  enabled: true
+  prefix: sample                   # all prometheus metrics will be prefixed with 'sample_'
+  port: 4321                       # an HTTP server exposing prometheus-compatible metrics will be started on this port
 zookeeper: 127.0.0.1:2181               # a comma-separated list of Zookeeper nodes; optional but leader election is disabled without
 zkleaderelectionpath: /leaderelection   # a zookeeper node path to be used for cluster leader election
 internaldata:                           # kafka configuration used to store internal firebolt data such as messages

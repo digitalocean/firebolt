@@ -1,5 +1,6 @@
 application: TestApp
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: kafkaconsumer
   params:
@@ -21,9 +22,9 @@ nodes:
         error_handler:
           name: errorhandlernode
           buffersize: 100
-          children:
-            - name: child-not-allowed-here
-              workers: 1
+          error_handler:
+            name: handler-cannot-have-handler
+            workers: 1
         children:
           - name: thirdnode
             id: third-node-id

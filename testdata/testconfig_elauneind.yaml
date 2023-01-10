@@ -1,5 +1,6 @@
 application: elauneind
-metricprefix: elauneind
+metrics:
+  prefix: elauneind
 source:
   name: kafkaconsumer
   params:

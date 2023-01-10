@@ -1,5 +1,6 @@
 application: TestApp
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: kafkaconsumer
   params:
@@ -15,9 +16,10 @@ nodes:
       param1.1: value1.1
       param1.2: value1.2
     children:
-      - name: not-registered-node-type
+      - name: secondnode
         workers: 2
         buffersize: 200
-  - name: fourthnode
-    workers: 4
-    buffersize: 400
+        error_handler:
+          name: secondnode
+          id: error-handler-consumer-wrong-type
+          buffersize: 100

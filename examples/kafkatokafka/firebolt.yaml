@@ -1,7 +1,7 @@
 application: KafkaToKafka
-metricsprefix: kafkatokafka
-metricsport: 9876
-
+metrics:
+  prefix: kafkatokafka
+  port: 9876
 source:
   # 'kafkaconsumer' reads raw syslog messages from a kafka topic
   name: kafkaconsumer

@@ -1,5 +1,6 @@
 application: TestApp
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: kafkaconsumer
   params:
@@ -8,14 +9,14 @@ source:
     topic: logs-all
     buffersize: 1000
 nodes:
-  - name: not-registered-node-type
+  - name: firstnode
     workers: 1
     buffersize: 100
     params:
       param1.1: value1.1
       param1.2: value1.2
     children:
-      - name: secondnode
+      - name: not-registered-node-type
         workers: 2
         buffersize: 200
   - name: fourthnode

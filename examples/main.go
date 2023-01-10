@@ -18,7 +18,7 @@ import (
 
 // choose an example to run; see 'runKafkaToKafka()' or 'runLogging()' for the actual example code
 func main() {
-	exampleName := os.Args[1]
+	exampleName := "kafkatokafka"
 	testutil.WaitForPort(nil, 9092) // wait for kafka to be ready
 	testutil.WaitForPort(nil, 9200) // wait for elasticsearch to be ready
 

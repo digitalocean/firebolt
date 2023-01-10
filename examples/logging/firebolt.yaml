@@ -1,6 +1,8 @@
 application: Logging
-metricsprefix: logging
-metricsport: 9877
+metrics:
+  enabled: false
+  port: 9877
+  prefix: logging
 
 source:
   # 'kafkaconsumer' reads raw syslog messages from a kafka topic
