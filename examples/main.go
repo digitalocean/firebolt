@@ -16,6 +16,11 @@ import (
 	"github.com/digitalocean/firebolt/testutil"
 )
 
+const (
+	kafkatokafkaExample = "kafkatokafka"
+	loggingExample      = "logging"
+)
+
 // choose an example to run; see 'runKafkaToKafka()' or 'runLogging()' for the actual example code
 func main() {
 	exampleName := os.Args[1]
@@ -23,12 +28,12 @@ func main() {
 	testutil.WaitForPort(nil, 9200) // wait for elasticsearch to be ready
 
 	// run the selected example
-	if exampleName == "kafkatokafka" {
+	if exampleName == kafkatokafkaExample {
 		runKafkaToKafka()
 
 		shared.ProduceTestData("ktk-source", 10)
 		shared.ConsumeTestData("ktk-dest", 10)
-	} else if exampleName == "logging" {
+	} else if exampleName == loggingExample {
 		runLogging()
 
 		shared.ProduceTestData("logs-raw", 120)
@@ -40,7 +45,7 @@ func main() {
 }
 
 func runKafkaToKafka() {
-	metrics.Init("kafkatokafka")
+	metrics.Init(kafkatokafkaExample)
 
 	// looking at the config file 'kafkatokafka/firebolt.yaml' for this example, there are four nodes in a chain:
 	//   kafkaconsumer -> parser -> jsonbuilder -> kafkaproducer
@@ -69,7 +74,7 @@ func runKafkaToKafka() {
 }
 
 func runLogging() {
-	metrics.Init("logging")
+	metrics.Init(loggingExample)
 
 	// looking at the config file 'logging/firebolt.yaml' for this example, there are four nodes in a chain:
 	//   kafkaconsumer -> parser -> docbuilder -> elasticsearch
