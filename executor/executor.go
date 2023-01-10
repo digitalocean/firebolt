@@ -55,10 +55,10 @@ func WithConfig(c config.Config) Opt {
 	}
 
 	// prometheus metrics server
-	metrics.Init(c.MetricsPrefix)
-	if c.MetricsPort != 0 {
+	metrics.Init(c.MetricsConfig.Prefix)
+	if c.MetricsConfig.Enabled {
 		go func() {
-			err := metrics.StartServer(context.Background(), c.MetricsPort)
+			err := metrics.StartServer(context.Background(), c.MetricsConfig.Port)
 			if err != nil {
 				log.WithError(err).Error("executor: failed to start metrics http server")
 			}

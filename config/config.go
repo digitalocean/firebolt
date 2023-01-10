@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 
-	"io/ioutil"
 	"os"
 	"reflect"
 
@@ -16,7 +15,9 @@ import (
 
 // Config is the firebolt application configuration, including the configured source and all processing nodes
 type Config struct {
+	Version         string              `yaml:"version"`
 	ApplicationName string              `yaml:"application"`
+	MetricsConfig   *MetricsConfig      `yaml:"metrics"`
 	MetricsPrefix   string              `yaml:"metricsprefix"`
 	MetricsPort     int                 `yaml:"metricsport"`
 	Zookeeper       string              `yaml:"zookeeper"`
@@ -25,6 +26,12 @@ type Config struct {
 	Source          *node.SourceConfig  `yaml:"source"`
 	Nodes           []*node.Config      `yaml:"nodes"`
 	ShutdownTimeOut int                 `yaml:"shutdowntimeout"`
+}
+
+type MetricsConfig struct {
+	Enabled bool   `yaml:"enabled"`
+	Prefix  string `yaml:"prefix"`
+	Port    int    `yaml:"port"`
 }
 
 // InternalDataTransportKafka is the transport name for using Kafka as the internal data transport.
@@ -41,7 +48,7 @@ type InternalDataConfig struct {
 func Read(file string) (*Config, error) {
 	c := Config{}
 
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		log.WithError(err).Error("failed to read config file")
 		return nil, err
@@ -56,7 +63,7 @@ func Read(file string) (*Config, error) {
 		return nil, err
 	}
 
-	setDefaults(c)
+	setDefaults(&c)
 
 	err = validate(c)
 	if err != nil {
@@ -212,7 +219,17 @@ func validateErrorHandlerConfig(n *node.Config) error {
 }
 
 // setDefaults recursively visits each node, assigning defaults for missing config values
-func setDefaults(c Config) {
+func setDefaults(c *Config) {
+
+	if c.MetricsConfig == nil {
+		enabled := c.MetricsPort > 0
+		c.MetricsConfig = &MetricsConfig{
+			Prefix:  c.MetricsPrefix,
+			Port:    c.MetricsPort,
+			Enabled: enabled,
+		}
+	}
+
 	for _, n := range c.Nodes {
 		assignNodeConfigDefaults(n)
 	}

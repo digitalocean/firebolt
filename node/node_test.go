@@ -52,7 +52,7 @@ func registerTestNodeTypes() {
 func TestInitContext(t *testing.T) {
 	registerTestNodeTypes()
 
-	cfg, err := config.Read("testconfig.yaml")
+	cfg, err := config.Read("../testdata/testconfig_elauneind.yaml")
 	assert.Nil(t, err)
 
 	context := node.InitNodeContextHierarchy(cfg.Nodes[0])
@@ -71,7 +71,7 @@ func TestProcess(t *testing.T) {
 	metrics.Init("node_test")
 	registerTestNodeTypes()
 
-	cfg, err := config.Read("testconfig.yaml")
+	cfg, err := config.Read("../testdata/testconfig_elauneind.yaml")
 	assert.Nil(t, err)
 	context := node.InitNodeContextHierarchy(cfg.Nodes[0]) // syslog1
 
@@ -212,7 +212,7 @@ func TestDeliverToChild(t *testing.T) {
 	metrics.Init("node_test")
 	registerTestNodeTypes()
 
-	cfg, err := config.Read("testconfig.yaml")
+	cfg, err := config.Read("../testdata/testconfig_elauneind.yaml")
 
 	assert.Nil(t, err)
 	context := node.InitNodeContextHierarchy(cfg.Nodes[0])

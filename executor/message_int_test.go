@@ -60,7 +60,7 @@ func newExecutorForMessageTopic(topicName string) (*executor.Executor, error) {
 	// read the config file and update the config to use a unique topic name, which isolates this test from any records left by previous test runs
 	executor.RegisterBuiltinSourceTypes()
 	executor.RegisterBuiltinNodeTypes()
-	c, _ := config.Read("testconfig.yaml")
+	c, _ := config.Read("testconfig_simple.yaml")
 	c.InternalData.Params["messagetopic"] = topicName
 
 	return executor.New(executor.WithConfig(*c))

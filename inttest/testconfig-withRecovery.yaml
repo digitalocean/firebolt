@@ -1,6 +1,8 @@
 application: unit-test-pipeline
-metricsprefix: test
-metricsport: 23456
+metrics:
+  enabled: true
+  prefix: test
+  port: 23456
 internaldata:
   transport: kafka
   params:

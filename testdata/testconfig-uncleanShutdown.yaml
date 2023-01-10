@@ -1,5 +1,6 @@
 application: unit-test-pipeline
-metricsprefix: test
+metrics:
+  prefix: test
 source:
   name: simplesource
 nodes:

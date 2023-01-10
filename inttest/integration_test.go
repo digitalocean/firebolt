@@ -28,7 +28,7 @@ const recordCount = 100
 func TestEndToEnd(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("testconfig_simple.yaml"))
 	assert.Nil(t, err)
 
 	testutil.WaitForPort(t, 9200)                      // wait for infra (kafka, elasticsearch) to be available - we wait for es since it takes longer to startup

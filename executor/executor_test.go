@@ -12,7 +12,7 @@ import (
 )
 
 func TestNewInvalidConfig(t *testing.T) {
-	ex, err := executor.New(executor.WithConfigFile("filethatdoesnotexist.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("../testdata/filethatdoesnotexist.yaml"))
 	if err == nil {
 		t.Error("expected an error, config file does not exist")
 	}
@@ -24,7 +24,7 @@ func TestNewInvalidConfig(t *testing.T) {
 func TestExecutor(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("../testdata/testconfig_simple.yaml"))
 	assert.Nil(t, err)
 	go ex.Execute()
 
@@ -41,7 +41,7 @@ func TestExecutor(t *testing.T) {
 func TestBuildNodeHierarchy(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("../testdata/testconfig_simple.yaml"))
 	assert.Nil(t, err)
 
 	rootNode := ex.FindNodeByID("filternode")
@@ -65,7 +65,7 @@ func TestUncleanShutdown(t *testing.T) {
 	// simplesource produces 18 records, 10 are successful and will reach 'slownode', which waits 5s per for a total of 50s delay
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig-uncleanShutdown.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("../testdata/testconfig-uncleanShutdown.yaml"))
 	if err != nil {
 		t.Error(err)
 	}
