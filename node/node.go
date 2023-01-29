@@ -26,6 +26,12 @@ type SyncNode interface {
 	Process(event *firebolt.Event) (*firebolt.Event, error)
 }
 
+// FanoutNode is a Node which returns a slice of Events.
+type FanoutNode interface {
+	Node
+	Process(event *firebolt.Event) ([]firebolt.Event, error)
+}
+
 // AsyncNode is a Node which responds asynchronously.
 type AsyncNode interface {
 	Node
@@ -55,7 +61,7 @@ type Config struct {
 // Context is the execution context for a given node
 type Context struct {
 	Config        *Config
-	Async         bool
+	NodeType      nodeType
 	Ch            chan firebolt.Event // ch is the input buffer for this node
 	StopCh        chan bool
 	NodeProcessor Node
@@ -90,6 +96,7 @@ func InitNodeContextHierarchy(nodeConfig *Config) *Context {
 			Ch:            make(chan firebolt.Event, nodeConfig.ErrorHandler.BufferSize),
 			StopCh:        make(chan bool, nodeConfig.Workers), // unclean shutdown will use one message per worker on StopCh
 			NodeProcessor: GetRegistry().InstantiateNode(nodeConfig.ErrorHandler.Name),
+			NodeType:      Sync,
 			WaitGroup:     &sync.WaitGroup{},
 			ShutdownOnce:  &sync.Once{},
 		}
@@ -97,11 +104,10 @@ func InitNodeContextHierarchy(nodeConfig *Config) *Context {
 
 	// create the node processor itself
 	nodeProcessor := GetRegistry().InstantiateNode(nodeConfig.Name)
-	_, isSync := nodeProcessor.(SyncNode)
-	_, isAsync := nodeProcessor.(AsyncNode)
-	if !isSync && !isAsync {
-		log.WithField("node_id", nodeConfig.ID).WithField("node_name", nodeConfig.Name).Error("node: configured node must implement either SyncNode or AsyncNode")
-		panic("node: configured node " + nodeConfig.ID + " must implement either SyncNode or AsyncNode")
+	nodeType := getNodeType(nodeProcessor)
+	if nodeType == Unknown {
+		log.WithField("node_id", nodeConfig.ID).WithField("node_name", nodeConfig.Name).Error("node: configured node must implement SyncNode, AsyncNode, or FanoutNode")
+		panic("node: configured node " + nodeConfig.ID + " must implement SyncNode, AsyncNode, or FanoutNode")
 	}
 
 	log.WithField("node_id", nodeConfig.ID).WithField("node_name", nodeConfig.Name).Info("building node context")
@@ -110,7 +116,7 @@ func InitNodeContextHierarchy(nodeConfig *Config) *Context {
 		Ch:            make(chan firebolt.Event, nodeConfig.BufferSize),
 		StopCh:        make(chan bool),
 		NodeProcessor: nodeProcessor,
-		Async:         isAsync,
+		NodeType:      nodeType,
 		Children:      childContexts,
 		ErrorHandler:  errorHandler,
 		WaitGroup:     &sync.WaitGroup{},
@@ -120,26 +126,62 @@ func InitNodeContextHierarchy(nodeConfig *Config) *Context {
 	return ctx
 }
 
+type nodeType int
+
+const (
+	Unknown nodeType = iota
+	Sync
+	Async
+	Fanout
+)
+
+func getNodeType(node Node) nodeType {
+	if _, isSync := node.(SyncNode); isSync {
+		return Sync
+	}
+
+	if _, isAsync := node.(AsyncNode); isAsync {
+		return Async
+	}
+
+	if _, isFanout := node.(FanoutNode); isFanout {
+		return Fanout
+	}
+
+	return Unknown
+}
+
 // ProcessEvent calls the node's 'process' method for the passed event and handles success / filter / failure cases.
 func (nc *Context) ProcessEvent(event *firebolt.Event) {
 	metrics.Node().EventsReceived.WithLabelValues(nc.Config.ID).Inc()
 
 	// process
-	if !nc.Async {
+	switch nc.NodeType {
+	case Sync:
 		result, err := nc.invokeProcessorSync(event)
-		nc.handleResult(err, event, result)
-	} else {
+		nc.handleResult(err, event, eventToEventSlice(result))
+	case Async:
 		nc.invokeProcessorAsync(event)
+	case Fanout:
+		results, err := nc.invokeProcessorFanout(event)
+		nc.handleResult(err, event, results)
 	}
 }
 
-func (nc *Context) handleResult(err error, event *firebolt.Event, result *firebolt.Event) {
+func eventToEventSlice(event *firebolt.Event) []firebolt.Event {
+	if event == nil {
+		return []firebolt.Event{}
+	}
+	return []firebolt.Event{*event}
+}
+
+func (nc *Context) handleResult(err error, event *firebolt.Event, result []firebolt.Event) {
 	// success, filter, failure cases
 	if err != nil {
 		// failure
 		nc.handleFailure(event, err)
 	} else {
-		if result == nil {
+		if len(result) == 0 {
 			// filtered
 			log.WithField("node_id", nc.Config.ID).Debug("nil returned, filtering event")
 			metrics.Node().Filtered.WithLabelValues(nc.Config.ID).Inc()
@@ -153,23 +195,25 @@ func (nc *Context) handleResult(err error, event *firebolt.Event, result *firebo
 	}
 }
 
-// deliverToChild delivers a successful result to a single child node, discarding or blocking (backpressure) if the
-// child's channel is full based on the node's configuration
-func (nc *Context) deliverToChild(childNode *Context, event *firebolt.Event) {
-	select {
-	case childNode.Ch <- *event:
-		// message was put on channel successfully
-	default:
-		// target channel was full
-		if childNode.Config.DiscardOnFullBuffer {
-			metrics.Node().DiscardedEvents.WithLabelValues(childNode.Config.ID).Inc()
-		} else {
-			// may block if ch still full, creating backpressure
-			metrics.Node().BufferFullEvents.WithLabelValues(childNode.Config.ID).Inc()
-			childNode.Ch <- *event
+// deliverToChild delivers one or more successful results to a single child node, discarding or blocking (backpressure)
+// if the child's channel is full based on the node's configuration
+func (nc *Context) deliverToChild(childNode *Context, events []firebolt.Event) {
+	for _, event := range events {
+		select {
+		case childNode.Ch <- event:
+			// message was put on channel successfully
+		default:
+			// target channel was full
+			if childNode.Config.DiscardOnFullBuffer {
+				metrics.Node().DiscardedEvents.WithLabelValues(childNode.Config.ID).Inc()
+			} else {
+				// may block if ch still full, creating backpressure
+				metrics.Node().BufferFullEvents.WithLabelValues(childNode.Config.ID).Inc()
+				childNode.Ch <- event
+			}
 		}
+		metrics.Node().BufferedEvents.WithLabelValues(childNode.Config.ID).Set(float64(len(childNode.Ch)))
 	}
-	metrics.Node().BufferedEvents.WithLabelValues(childNode.Config.ID).Set(float64(len(childNode.Ch)))
 }
 
 // invokeProcessorSync calls the Process() method on this node type, timing its execution
@@ -186,6 +230,20 @@ func (nc *Context) invokeProcessorSync(event *firebolt.Event) (*firebolt.Event, 
 	return result, err
 }
 
+// invokeProcessorFanout calls the Process() method on this node type, timing its execution
+func (nc *Context) invokeProcessorFanout(event *firebolt.Event) ([]firebolt.Event, error) {
+	start := time.Now()
+
+	fanoutNode, ok := nc.NodeProcessor.(FanoutNode)
+	if !ok {
+		panic("node: sync invocation failed to convert target to FanoutNode")
+	}
+
+	result, err := fanoutNode.Process(event)
+	metrics.Node().ProcessTime.WithLabelValues(nc.Config.ID).Observe(time.Since(start).Seconds())
+	return result, err
+}
+
 // invokeProcessorAsync calls the ProcessAsync() method on this node type
 func (nc *Context) invokeProcessorAsync(event *firebolt.Event) {
 	start := time.Now()
@@ -197,7 +255,7 @@ func (nc *Context) invokeProcessorAsync(event *firebolt.Event) {
 	eventFunc := func(result *firebolt.AsyncEvent) {
 		metrics.Node().ProcessTime.WithLabelValues(nc.Config.ID).Observe(time.Since(start).Seconds())
 		if result != nil {
-			nc.handleResult(nil, event, result.Event)
+			nc.handleResult(nil, event, eventToEventSlice(result.Event))
 		} else {
 			nc.handleResult(nil, event, nil)
 		}

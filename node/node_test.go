@@ -59,9 +59,9 @@ func TestInitContext(t *testing.T) {
 	assert.Equal(t, "syslog1", context.Config.ID)
 	assert.NotNil(t, context.ErrorHandler)
 	assert.Equal(t, "errorkafkaproducer", context.ErrorHandler.Config.ID)
-	assert.Equal(t, 2, len(context.Children))         // syslog1 has two children, filternode and asyncfilternode
-	assert.Equal(t, false, context.Children[0].Async) // filternode is sync
-	assert.Equal(t, true, context.Children[1].Async)  // asyncfilternode is async
+	assert.Equal(t, 2, len(context.Children))                 // syslog1 has two children, filternode and asyncfilternode
+	assert.Equal(t, node.Sync, context.Children[0].NodeType)  // filternode is sync
+	assert.Equal(t, node.Async, context.Children[1].NodeType) // asyncfilternode is async
 	assert.Equal(t, "filternode", context.Children[0].Config.ID)
 	assert.Nil(t, context.Children[0].ErrorHandler)
 	assert.Equal(t, 2, len(context.Children[0].Children)) // only two children; the third child is marked 'disabled' in the config file
@@ -251,7 +251,7 @@ func TestDeliverToChild(t *testing.T) {
 	assert.Equal(t, 1, len(context.Children[0].Children[0].Ch))
 	assert.Equal(t, 3, len(context.Children[0].Children[1].Ch))
 	time.Sleep(100 * time.Millisecond)
-	_ = <-context.Children[0].Children[1].Ch // read one from the full channel to unblock
+	<-context.Children[0].Children[1].Ch // read one from the full channel to unblock
 	time.Sleep(100 * time.Millisecond)
 	assert.Equal(t, 1, len(context.Children[0].Children[0].Ch))
 	assert.Equal(t, 3, len(context.Children[0].Children[1].Ch)) // full again
