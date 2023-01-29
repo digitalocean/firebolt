@@ -2,7 +2,6 @@ package executor_test
 
 import (
 	"testing"
-
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,7 @@ func TestNewInvalidConfig(t *testing.T) {
 func TestExecutor(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("testconfig-noMessageTransport.yaml"))
 	assert.Nil(t, err)
 	go ex.Execute()
 
