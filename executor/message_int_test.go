@@ -60,7 +60,7 @@ func newExecutorForMessageTopic(topicName string) (*executor.Executor, error) {
 	// read the config file and update the config to use a unique topic name, which isolates this test from any records left by previous test runs
 	executor.RegisterBuiltinSourceTypes()
 	executor.RegisterBuiltinNodeTypes()
-	c, _ := config.Read("testconfig.yaml")
+	c, _ := config.Read("testdata/testconfig.yaml")
 	c.InternalData.Params["messagetopic"] = topicName
 
 	return executor.New(executor.WithConfig(*c))
@@ -159,7 +159,7 @@ func TestNoOpMessageTransport(t *testing.T) {
 
 	emptyMessageChannel()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig-noMessageTransport.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("testdata/testconfig-noMessageTransport.yaml"))
 	assert.Nil(t, err)
 
 	sendMessageViaNode(ex, "IntTestMessage", "1", "bar")

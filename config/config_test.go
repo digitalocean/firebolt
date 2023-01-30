@@ -1,15 +1,12 @@
 package config_test
 
 import (
+	"os"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/digitalocean/firebolt/node/kafkaproducer"
-
-	"strings"
-
-	"reflect"
-
-	"os"
 
 	"github.com/stretchr/testify/assert"
 
@@ -26,7 +23,7 @@ func TestParseConfig(t *testing.T) {
 	// test ENV substitution
 	_ = os.Setenv("KAFKA_BROKERS", "kafkabroker:9092")
 
-	c, err := config.Read("testconfig.yaml")
+	c, err := config.Read("testdata/testconfig.yaml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -135,7 +132,7 @@ func TestParseMissingFile(t *testing.T) {
 }
 
 func TestDuplicateIDValues(t *testing.T) {
-	c, err := config.Read("testconfig_errorDupID.yaml")
+	c, err := config.Read("testdata/testconfig_errorDupID.yaml")
 	if err == nil {
 		t.Error("expected an error, duplicate ID values are present")
 	}
@@ -146,7 +143,7 @@ func TestDuplicateIDValues(t *testing.T) {
 }
 
 func TestInvalidYaml(t *testing.T) {
-	c, err := config.Read("testconfig_invalidYaml.yaml")
+	c, err := config.Read("testdata/testconfig_invalidYaml.yaml")
 	if err == nil {
 		t.Error("expected an error, unparseable YAML")
 	}
@@ -157,47 +154,47 @@ func TestInvalidYaml(t *testing.T) {
 }
 
 func TestErrorHandlerMustNotHaveChildren(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_errorHandlerHasChildren.yaml", "error_handler nodes may not have children for node errorhandlernode")
+	readConfigAndExpectError(t, "testdata/testconfig_errorHandlerHasChildren.yaml", "error_handler nodes may not have children for node errorhandlernode")
 }
 
 func TestErrorHandlerMustNotHaveErrorHandler(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_errorHandlerHasErrorHandler.yaml", "error_handler nodes may not have an error_handler of their own for node errorhandlernode")
+	readConfigAndExpectError(t, "testdata/testconfig_errorHandlerHasErrorHandler.yaml", "error_handler nodes may not have an error_handler of their own for node errorhandlernode")
 }
 
 func TestRootNodeTypeNotRegistered(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_rootNodeTypeNotRegistered.yaml", "node type not-registered-node-type not registered")
+	readConfigAndExpectError(t, "testdata/testconfig_rootNodeTypeNotRegistered.yaml", "node type not-registered-node-type not registered")
 }
 
 func TestChildNodeTypeNotRegistered(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_childNodeTypeNotRegistered.yaml", "node type not-registered-node-type not registered")
+	readConfigAndExpectError(t, "testdata/testconfig_childNodeTypeNotRegistered.yaml", "node type not-registered-node-type not registered")
 }
 
 func TestErrorHandlerTypeNotRegistered(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_errorHandlerTypeNotRegistered.yaml", "error_handler node type not-registered-err-handler not registered")
+	readConfigAndExpectError(t, "testdata/testconfig_errorHandlerTypeNotRegistered.yaml", "error_handler node type not-registered-err-handler not registered")
 }
 
 func TestErrorHandlerConsumesWrongType(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_errorHandlerConsumesWrongType.yaml", "error_handler node type secondnode must consume EventError, actually consumes string")
+	readConfigAndExpectError(t, "testdata/testconfig_errorHandlerConsumesWrongType.yaml", "error_handler node type secondnode must consume EventError, actually consumes string")
 }
 
 func TestSourceToRootNodeTypeMismatch(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_sourceToRootNodeTypeMismatch.yaml", "source type kafkaconsumer produces []uint8, but root node secondnode consumes incompatible type string")
+	readConfigAndExpectError(t, "testdata/testconfig_sourceToRootNodeTypeMismatch.yaml", "source type kafkaconsumer produces []uint8, but root node secondnode consumes incompatible type string")
 }
 
 func TestNodeToChildNodeTypeMismatch(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_nodeToChildNodeTypeMismatch.yaml", "node type firstnode produces string, but child firstnode consumes incompatible type []uint8")
+	readConfigAndExpectError(t, "testdata/testconfig_nodeToChildNodeTypeMismatch.yaml", "node type firstnode produces string, but child firstnode consumes incompatible type []uint8")
 }
 
 // internalData is not required
 func TestNoInternalData(t *testing.T) {
 	registerTestNodeTypes()
-	c, err := config.Read("testconfig_noInternalData.yaml")
+	c, err := config.Read("testdata/testconfig_noInternalData.yaml")
 	assert.Nil(t, err)
 	assert.Nil(t, c.InternalData)
 }
 
 func TestInvalidInternalData(t *testing.T) {
-	readConfigAndExpectError(t, "testconfig_invalidInternalData.yaml", "internal data transport cassandra not supported")
+	readConfigAndExpectError(t, "testdata/testconfig_invalidInternalData.yaml", "internal data transport cassandra not supported")
 }
 
 func readConfigAndExpectError(t *testing.T, configFile string, expectedMsg string) {

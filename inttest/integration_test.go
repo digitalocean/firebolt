@@ -28,7 +28,7 @@ const recordCount = 100
 func TestEndToEnd(t *testing.T) {
 	internal.RegisterTestNodeTypes()
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("testdata/testconfig.yaml"))
 	assert.Nil(t, err)
 
 	testutil.WaitForPort(t, 9200)                      // wait for infra (kafka, elasticsearch) to be available - we wait for es since it takes longer to startup
@@ -133,7 +133,7 @@ func TestRecovery(t *testing.T) {
 	// to test recovery, produce records before startup
 	produceTestData(4000) // approx 1k per partition after random partition assignment
 
-	ex, err := executor.New(executor.WithConfigFile("testconfig-withRecovery.yaml"))
+	ex, err := executor.New(executor.WithConfigFile("testdata/testconfig-withRecovery.yaml"))
 	assert.Nil(t, err)
 	go ex.Execute()
 	time.Sleep(30 * time.Second) // give the executor time to process
