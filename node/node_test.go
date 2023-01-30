@@ -47,6 +47,10 @@ func registerTestNodeTypes() {
 	node.GetRegistry().RegisterNodeType("asyncfilternode", func() node.Node {
 		return &AsyncFilterNode{}
 	}, reflect.TypeOf(""), reflect.TypeOf((*firebolt.ProduceRequest)(nil)).Elem())
+
+	node.GetRegistry().RegisterNodeType("fanoutnode", func() node.Node {
+		return &FanoutNode{}
+	}, reflect.TypeOf(""), reflect.TypeOf(""))
 }
 
 func TestInitContext(t *testing.T) {
@@ -59,9 +63,10 @@ func TestInitContext(t *testing.T) {
 	assert.Equal(t, "syslog1", context.Config.ID)
 	assert.NotNil(t, context.ErrorHandler)
 	assert.Equal(t, "errorkafkaproducer", context.ErrorHandler.Config.ID)
-	assert.Equal(t, 2, len(context.Children))                 // syslog1 has two children, filternode and asyncfilternode
-	assert.Equal(t, node.Sync, context.Children[0].NodeType)  // filternode is sync
-	assert.Equal(t, node.Async, context.Children[1].NodeType) // asyncfilternode is async
+	assert.Equal(t, 2, len(context.Children))                             // syslog1 has two children, filternode and asyncfilternode
+	assert.Equal(t, node.Sync, context.Children[0].NodeType)              // filternode is sync
+	assert.Equal(t, node.Fanout, context.Children[1].NodeType)            // fanoutnode is fanout
+	assert.Equal(t, node.Async, context.Children[1].Children[0].NodeType) // asyncfilternode is async
 	assert.Equal(t, "filternode", context.Children[0].Config.ID)
 	assert.Nil(t, context.Children[0].ErrorHandler)
 	assert.Equal(t, 2, len(context.Children[0].Children)) // only two children; the third child is marked 'disabled' in the config file
@@ -150,8 +155,17 @@ func TestProcess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0.0, ec)
 
+	// fanout should triple each message
+	fanoutNode := context.Children[1]
+	assert.Equal(t, "fanoutnode", fanoutNode.Config.ID)
+	fanoutNode.ProcessEvent(&firebolt.Event{
+		Payload: "triple this message",
+		Created: time.Now(),
+	})
+	assert.Equal(t, 3, len(fanoutNode.Children[0].Ch)) // should be 3x messages for the child to process
+
 	// asyncfilternode should filter this one
-	asyncFilterNode := context.Children[1]
+	asyncFilterNode := fanoutNode.Children[0]
 	assert.Equal(t, "asyncfilternode", asyncFilterNode.Config.ID)
 	asyncFilterNode.ProcessEvent(&firebolt.Event{
 		Payload: "asyncfilter this message",
@@ -328,4 +342,36 @@ func (a *AsyncFilterNode) Shutdown() error {
 
 func (a *AsyncFilterNode) Receive(msg fbcontext.Message) error {
 	return errors.New("asyncfilternode: message not supported")
+}
+
+// FanoutNode is a FanoutNode which produces 3x of each message received
+type FanoutNode struct {
+	fbcontext.ContextAware
+}
+
+// Setup is a no-op in fanoutnode
+func (f *FanoutNode) Setup(config map[string]string) error {
+	return nil
+}
+
+// Process handles the event and returns an optional result, and an optional error
+func (f *FanoutNode) Process(event *firebolt.Event) ([]firebolt.Event, error) {
+	_, ok := event.Payload.(string)
+	if !ok {
+		return nil, errors.New("failed type assertion for conversion to string")
+	}
+
+	results := []firebolt.Event{*event, *event, *event}
+
+	return results, nil
+}
+
+// Shutdown provides an opportunity for the Node to clean up resources on shutdown
+func (f *FanoutNode) Shutdown() error {
+	return nil
+}
+
+// Receive handles a message from another node or an external source
+func (f *FanoutNode) Receive(msg fbcontext.Message) error {
+	return errors.New("message not supported")
 }
