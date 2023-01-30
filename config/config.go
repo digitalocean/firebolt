@@ -2,8 +2,6 @@ package config
 
 import (
 	"fmt"
-
-	"io/ioutil"
 	"os"
 	"reflect"
 
@@ -41,7 +39,7 @@ type InternalDataConfig struct {
 func Read(file string) (*Config, error) {
 	c := Config{}
 
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		log.WithError(err).Error("failed to read config file")
 		return nil, err
