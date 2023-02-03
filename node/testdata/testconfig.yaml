@@ -32,8 +32,11 @@ nodes:
       disabled: true
       workers: 4
       buffersize: 200
-  - name: asyncfilternode
+  - name: fanoutnode
     buffersize: 100
     children:
-      - name: kafkaproducer
-        buffersize: 1
+      - name: asyncfilternode
+        buffersize: 100
+        children:
+          - name: kafkaproducer
+            buffersize: 1

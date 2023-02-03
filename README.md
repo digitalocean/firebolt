@@ -20,7 +20,8 @@ We provide one built-in source:
 
 The processing of your application is executed by its **nodes** which form a processing tree.  Data - events - flow down
 this tree.   A parent **node** passes results down to it's child **nodes**.  Nodes may process events synchronously or
-asynchronously, and must implement the `node.SyncNode` or `node.AsyncNode` interfaces accordingly.
+asynchronously.  A synchronous node type `node.FanoutNode` returns a slice of results for fanout or 'demultiplexing' use 
+cases.  Each node must implement the `node.SyncNode`, `node.FanoutNode`, or `node.AsyncNode` interfaces accordingly.
 
 We provide two built-in node types:
 
@@ -63,23 +64,25 @@ Some of the concerns Firebolt addresses include:
 
 1. [Configuration ](docs/config.md) The configuration file format
 
-1. [Execution ](docs/executor.md) How Firebolt processes your data
+2. [Execution ](docs/executor.md) How Firebolt processes your data
 
-1. [Registry ](docs/registry.md) Adding node types to the registry
+3. [Registry ](docs/registry.md) Adding node types to the registry
 
-1. [Sample Application Code ](docs/application.md)  Example code for running the Firebolt executor
+4. [Sample Application Code ](docs/application.md)  Example code for running the Firebolt executor
 
-1. [Sources ](docs/sources.md) Implementing and using sources
+5. [Sources ](docs/sources.md) Implementing and using sources
 
-1. [Sync Nodes ](docs/sync-nodes.md) Implementing and using synchronous nodes
+6. [Sync Nodes ](docs/sync-nodes.md) Implementing and using synchronous nodes
 
-1. [Async Nodes ](docs/async-nodes.md) Implementing and using asynchronous nodes
+7. [Fanout Nodes ](docs/fanout-nodes.md) Implementing and using fanout nodes
 
-1. [Leader Election ](docs/leader-election.md) Starting leader election and accessing election results
+8. [Async Nodes ](docs/async-nodes.md) Implementing and using asynchronous nodes
 
-1. [Messaging ](docs/messaging.md) How to send and receive messages between the components of your system
+9. [Leader Election ](docs/leader-election.md) Starting leader election and accessing election results
 
-1. [Metrics](docs/metrics.md) What metrics are exposed by default, and how to add custom metrics to your nodes
+10. [Messaging ](docs/messaging.md) How to send and receive messages between the components of your system
+
+11. [Metrics](docs/metrics.md) What metrics are exposed by default, and how to add custom metrics to your nodes
 
 
 ## Built-In Types
