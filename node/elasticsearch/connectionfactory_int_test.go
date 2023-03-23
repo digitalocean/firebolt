@@ -17,7 +17,7 @@ func TestReconnect(t *testing.T) {
 	metrics.Init("elasticsearch")
 
 	metrics := &Metrics{}
-	metrics.RegisterElasticIndexMetrics()
+	metrics.RegisterElasticIndexMetrics(0.1, 20.0, 8)
 
 	cf := newEsBulkServiceFactory(context.TODO(), "http://localhost:9200", "", "", 3, 10000, metrics)
 
