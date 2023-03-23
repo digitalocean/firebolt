@@ -82,9 +82,24 @@ func (i *Elasticsearch) Setup(cfgMap map[string]string) error {
 		return err
 	}
 
+	bulkProcessHistogramMin, err := config.Float64Config("histogram-min-bucket-sec", 0.01, 0.01, math.MaxFloat64)
+	if err != nil {
+		return err
+	}
+
+	bulkProcessHistogramMax, err := config.Float64Config("histogram-max-bucket-sec", float64(2*(bulkIndexTimeoutMs/1000)), 0.01, math.MaxFloat64)
+	if err != nil {
+		return err
+	}
+
+	bulkProcessingHistogramBuckets, err := config.IntConfig("histogram-bucket-count", 8, 1, math.MaxInt)
+	if err != nil {
+		return err
+	}
+
 	// initialize metrics
 	metrics := &Metrics{}
-	metrics.RegisterElasticIndexMetrics()
+	metrics.RegisterElasticIndexMetrics(bulkProcessHistogramMin, bulkProcessHistogramMax, bulkProcessingHistogramBuckets)
 
 	// service factory; in tests it must be prepopulated with a mock
 	if i.serviceFactory == nil {

@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"testing"
@@ -33,8 +34,21 @@ func TestSetup(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "expected integer value for config [batch-size]", err.Error())
 
-	config["batch-size"] = "10"               // clean up the prev err
-	config["batch-max-wait-ms"] = "-99999999" // less than minvalue
+	config["batch-size"] = "10"                 // clean up the prev err
+	config["histogram-min-bucket-sec"] = "aaaa" // not a float64
+	err = e.Setup(config)
+	assert.Error(t, err)
+	assert.Equal(t, "expected float64 value for config [histogram-min-bucket-sec]", err.Error())
+
+	config["histogram-min-bucket-sec"] = "0.01"  // clean up the prev err
+	config["bulk-index-timeout-seconds"] = "20"  // needed for calculating max bucket
+	config["histogram-max-bucket-sec"] = "-0.01" // value out of bounds
+	err = e.Setup(config)
+	assert.Error(t, err)
+	assert.Equal(t, fmt.Sprintf("config value [%s] requires value between [%f] and [%f]", "histogram-max-bucket-sec", 0.01, math.MaxFloat64), err.Error())
+
+	config["histogram-max-bucket-sec"] = "40.0" // clean up the prev err
+	config["batch-max-wait-ms"] = "-99999999"   // less than minvalue
 	err = e.Setup(config)
 	assert.Error(t, err)
 	assert.Equal(t, "config value [batch-max-wait-ms] requires value between [1] and [2147483647]", err.Error())

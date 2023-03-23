@@ -18,8 +18,16 @@ type Metrics struct {
 	AvailableBatchRoutines          prometheus.Gauge
 }
 
+// generateElasticsearchProcessTimeBuckets generates a bucket slice usable for bucketing the BulkProcessTime (or future
+// prometheus.Histogram metrics)
+func generateElasticsearchProcessTimeBuckets(min, max float64, count int) []float64 {
+	return prometheus.ExponentialBucketsRange(min, max, count)
+}
+
 // RegisterElasticIndexMetrics initializes metrics and registers them with the prometheus client.
-func (m *Metrics) RegisterElasticIndexMetrics() {
+// To support user-configurable bucketing of Histogram metrics, a min, max, and count value must be supplied for generating
+// exponential buckets
+func (m *Metrics) RegisterElasticIndexMetrics(min, max float64, count int) {
 	m.BulkErrors = *prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: metrics.Get().AppMetricsPrefix,
@@ -43,7 +51,7 @@ func (m *Metrics) RegisterElasticIndexMetrics() {
 			Namespace: metrics.Get().AppMetricsPrefix,
 			Name:      "bulk_process_time",
 			Help:      "Time to write bulk logs to elasticsearch",
-			Buckets:   prometheus.ExponentialBuckets(0.01, 3, 8),
+			Buckets:   generateElasticsearchProcessTimeBuckets(min, max, count),
 		},
 	)
 
